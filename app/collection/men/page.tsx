@@ -60,7 +60,7 @@ export default async function Page() {
                 return (
                   <div key={p.product_id}>
                     <Link
-                      href={`/collection/${p.category.toLowerCase()}/${p.subcategory.toLowerCase()}/${p.product_id}`}
+                      href={`/products/${p.product_id}`}
                       className="block hover:opacity-95">
                       <section data-pid="470371">
                         <div>
