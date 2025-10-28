@@ -231,7 +231,7 @@ export default async function ProductPage({
                     {/* Contains Button */}
                     <div className="absolute space-y-5 right-5 bottom-5">
                       <button className="rounded-sm h-[28px] px-3 text-xs bg-gray-100 text-gray-700 font-medium flex items-center space-x-2 max-w-[100%]">
-                        <p className="line-clamp-1">Contains: { 'h' || "Kurta,Pant"}</p>
+                        <p className="line-clamp-1">Contains</p>
                         <svg width="14" height="12" viewBox="0 0 14 12" fill="none">
                           <path d="M7 12L0 0H14L7 12Z" fill="#666" />
                         </svg>
