@@ -1,6 +1,109 @@
+"use client"
 import Link from "next/link";
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { usePathname } from 'next/navigation'
+import { useCategory } from "@/context/CategoryContext";
+
+
+const PagePathNames = {
+    Men: '/collection/men',
+    Women: '/collection/women',
+    Kids: '/collection/kids',
+    Accessories: '/collection/accessories',
+    Jewellery: '/collection/jewellery',
+}
+
+interface Category {
+    category_id: string;
+    category_name: string;
+    parent_category_id: string;
+    level_id: string;
+    category_url: string;
+    sub_categories?: Category[];
+    sub_sub_categories?: Category[];
+}
+
+interface CategoryResponse {
+    status: boolean;
+    message: string;
+    data: Category[];
+}
 
 const Header = () => {
+    const pathname = usePathname()
+    const { selectedSubCategory, setSelectedSubCategory } = useCategory();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [categories, setCategories] = useState<CategoryResponse | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
+    const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
+    const getCurrentPageName = () => {
+        const entries = Object.entries(PagePathNames);
+        const currentPage = entries.find(([key, value]) => value === pathname);
+        return currentPage ? currentPage[0] : null;
+    }
+    const currentPage = getCurrentPageName();
+
+
+    useEffect(() => {
+        fetchCategories();
+    }, []);
+
+    const fetchCategories = async () => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await axios.get('/api/category-hierarchy');
+
+            if (response.data.status) {
+                setCategories(response.data);
+            } else {
+                setError(response.data.message || 'Failed to fetch categories');
+            }
+        } catch (err) {
+            console.error('Error fetching categories:', err);
+            if (axios.isAxiosError(err)) {
+                setError(err.response?.data?.message || err.message);
+            } else if (err instanceof Error) {
+                setError(err.message);
+            } else {
+                setError('Failed to fetch categories');
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const findCategory = (cats: Category[]): Category | null => {
+        for (const cat of cats) {
+            if (cat.category_name === currentPage) return cat;
+        }
+        return null;
+    };
+
+    const getSubCategories = () => {
+        if (!categories?.data) return [];
+        const activeCat = findCategory(categories.data);
+        if (!activeCat) return [];
+
+        return activeCat.sub_categories || activeCat.sub_sub_categories || [];
+    };
+
+    const subCats = getSubCategories();
+
+    useEffect(() => {
+        if (!categories?.data) return;
+        
+        const activeCat = findCategory(categories.data);
+        
+        if (categories.data.length > 0 && !selectedSubCategory && activeCat) {
+            setSelectedSubCategory(activeCat.category_id);
+        }
+    }, [categories, findCategory, setSelectedSubCategory, selectedSubCategory]);
+        
     return (
         <>
             <header className="sticky top-0 z-20 max-w-full mx-auto bg-white lg:hidden mobileHeader shadow-[0px_1px_3px_0px_rgba(66,66,66,0.15),_0px_0px_0px_1px_rgba(66,66,66,0.05)]">
@@ -40,13 +143,15 @@ const Header = () => {
                                 <Link href="/collection/women">
                                     <div>
                                         Women
-                                        <i className="absolute w-full h-0.5 bg-azaBlackShade3 rounded-tl-sm rounded-tr-sm left-0 bottom-0"></i>
+                                        <i className="absolute w-full h-0.5 bg-azaBlackShade3 rounded-tl-sm rounded-tr-sm left-0 bottom-0">
+                                        </i>
                                     </div>
                                 </Link>
                             </li>
                             <li className="relative px-4 py-2 whitespace-nowrap">
                                 <Link href="/collection/men">
-                                    <div>Men</div>
+                                    <div>Men
+                                    </div>
                                 </Link>
                             </li>
                             <li className="relative px-4 py-2 whitespace-nowrap">
@@ -78,38 +183,58 @@ const Header = () => {
                     <div className="flex items-center justify-between wrapperContainer">
                         <div>
                             <ul className="flex items-center text-[11px] xl:text-xs uppercase gap-x-4">
-                                <li className="px-2 py-1.5 border-b-2 border-t-2 border-t-transparent border-b-black text-azaBlackShade3">
+                                <li
+                                    className={`px-2 py-1.5 border-b-2 border-t-2 border-t-transparent text-azaBlackShade3 ${pathname === "/collection/women" ? "border-b-black" : "border-b-transparent"
+                                        }`}
+                                >
                                     <div>
                                         <Link href="/collection/women">Women</Link>
                                     </div>
                                 </li>
-                                <li className="px-2 py-1.5 border-b-2 border-t-2 border-t-transparent border-b-transparent text-azaBlackShade4">
+
+                                <li
+                                    className={`px-2 py-1.5 border-b-2 border-t-2 border-t-transparent text-azaBlackShade3 ${pathname === "/collection/men" ? "border-b-black" : "border-b-transparent"
+                                        }`}
+                                >
                                     <div>
                                         <Link href="/collection/men">Men</Link>
+
                                     </div>
                                 </li>
-                                <li className="px-2 py-1.5 border-b-2 border-t-2 border-t-transparent border-b-transparent text-azaBlackShade4">
+                                <li
+                                    className={`px-2 py-1.5 border-b-2 border-t-2 border-t-transparent text-azaBlackShade3 ${pathname === "/collection/kids" ? "border-b-black" : "border-b-transparent"
+                                        }`}
+                                >
                                     <div>
                                         <Link href="/collection/kids">Kids</Link>
                                     </div>
                                 </li>
-                                <li className="px-2 py-1.5 border-b-2 border-t-2 border-t-transparent border-b-transparent text-azaBlackShade4">
+                                <li
+                                    className={`px-2 py-1.5 border-b-2 border-t-2 border-t-transparent text-azaBlackShade3 ${pathname === "/collection/jewellery" ? "border-b-black" : "border-b-transparent"
+                                        }`}
+                                >
                                     <div>
                                         <Link href="/collection/jewellery">Jewellery</Link>
                                     </div>
                                 </li>
-                                <li className="px-2 py-1.5 border-b-2 border-t-2 border-t-transparent border-b-transparent text-azaBlackShade4">
+                                <li
+                                    className={`px-2 py-1.5 border-b-2 border-t-2 border-t-transparent text-azaBlackShade3 ${pathname === "/collection/accessories" ? "border-b-black" : "border-b-transparent"
+                                        }`}
+                                >
                                     <div>
                                         <Link href="/collection/accessories">Accessories</Link>
                                     </div>
                                 </li>
-                                <li className="px-2 py-1.5 border-b-2 border-t-2 border-t-transparent border-b-transparent text-azaBlackShade4">
+                                {/* <li
+                                    className={`px-2 py-1.5 border-b-2 border-t-2 border-t-transparent text-azaBlackShade3 ${pathname === "/collection/women" ? "border-b-black" : "border-b-transparent"
+                                        }`}
+                                >
                                     <div>
                                         <a>
                                             Aza Editorials
                                         </a>
                                     </div>
-                                </li>
+                                </li> */}
                             </ul>
                         </div>
                         <div className="text-xs leading-5 text-azaBlackShade3">
@@ -217,44 +342,52 @@ const Header = () => {
                         <div className="relative">
                             <div className="wrapperContainer flex __className_d6f4a7 justify-center">
                                 <ul className="flex pt-2 mx-auto space-x-5 min-[1310px :space-x-6">
+                                    {/* {
+                                        subCats.map((item) => (
+                                            <li key={item.category_id} className="pb-2 text-xs font-normal xl:text-sm" onClick={() => setSelectedSubCategory(item.category_id)}>
+                                                <div>
+                                                    <span className="py-2 hover:font-normal hover:text-azaBrandColor font-light text-azaBlackShade3 after:h-[2px] after:transition-all after:bg-azaBrandColor transition duration-400 after:content-[''] after:mt-5 after:-bottom-[10px] after:right-0 after:absolute after:w-0 after:z-[10] hover:after:w-[fit-content]">{item.category_name}
+                                                    </span>
+                                                </div>
+                                            </li>
+                                        ))
+                                    } */}
+                                    {subCats.map((item) => {
+                                        const isActive = item.category_id === selectedSubCategory;
+                                        return (
+                                            // <li
+                                            //     key={item.category_id}
+                                            //     onClick={() => setSelectedSubCategory(item.category_id)}
+                                            //     className={`pb-2 text-xs font-normal xl:text-sm cursor-pointer transition-colors duration-200 ${isActive ? "text-azaBrandColor font-medium" : "text-azaBlackShade3 font-light"
+                                            //         }`}
+                                            // >
+                                            //     <span
+                                            //         className={`py-2 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-[2px] after:transition-all after:duration-300 ${isActive
+                                            //             ? "after:w-full after:bg-azaBrandColor"
+                                            //             : "after:w-0 hover:after:w-full hover:after:bg-azaBrandColor"
+                                            //             }`}
+                                            //     >
+                                            //         {item.category_name}
+                                            //     </span>
+                                            // </li>
+                                            <li
+                                                key={item.category_id}
+                                                onClick={() => setSelectedSubCategory(item.category_id)}
+                                                className={`pb-2 text-xs font-normal xl:text-sm cursor-pointer transition-colors duration-200 ${isActive ? "text-azaBrandColor font-medium" : "text-azaBlackShade3 font-light"
+                                                    }`}
+                                            >
+                                                <span
+                                                    className={`py-2 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-[0px] after:transition-all after:duration-300 ${isActive
+                                                        ? "after:w-full after:bg-azaBrandColor  after:top-[75%] "
+                                                        : "after:w-0 hover:after:w-full hover:after:bg-azaBrandColor"
+                                                        }`}
+                                                >
+                                                    {item.category_name}
+                                                </span>
+                                            </li>
 
-                                    <li className="pb-2 text-xs font-normal xl:text-sm">
-                                        <div>
-                                            <span className="py-2 hover:font-normal hover:text-azaBrandColor font-light text-azaBlackShade3 after:h-[2px] after:transition-all after:bg-azaBrandColor transition duration-400 after:content-[''] after:mt-5 after:-bottom-[10px] after:right-0 after:absolute after:w-0 after:z-[10] hover:after:w-[fit-content]">Kurta Sets
-                                            </span>
-                                        </div>
-                                    </li>
-                                    <li className="pb-2 text-xs font-normal xl:text-sm">
-                                        <div>
-                                            <span className="py-2 hover:font-normal hover:text-azaBrandColor font-light text-azaBlackShade3 after:h-[2px] after:transition-all after:bg-azaBrandColor transition duration-400 after:content-[''] after:mt-5 after:-bottom-[10px] after:right-0 after:absolute after:w-0 after:z-[10] hover:after:w-[fit-content]">Sherwanis
-                                            </span>
-                                        </div>
-                                    </li>
-                                    <li className="pb-2 text-xs font-normal xl:text-sm">
-                                        <div>
-                                            <span className="py-2 hover:font-normal hover:text-azaBrandColor font-light text-azaBlackShade3 after:h-[2px] after:transition-all after:bg-azaBrandColor transition duration-400 after:content-[''] after:mt-5 after:-bottom-[10px] after:right-0 after:absolute after:w-0 after:z-[10] hover:after:w-[fit-content]">Kurtas
-                                            </span>
-                                        </div>
-                                    </li>
-                                    <li className="pb-2 text-xs font-normal xl:text-sm">
-                                        <div>
-                                            <span className="py-2 hover:font-normal hover:text-azaBrandColor font-light text-azaBlackShade3 after:h-[2px] after:transition-all after:bg-azaBrandColor transition duration-400 after:content-[''] after:mt-5 after:-bottom-[10px] after:right-0 after:absolute after:w-0 after:z-[10] hover:after:w-[fit-content]">Nehru Jacket & Sets
-                                            </span>
-                                        </div>
-                                    </li>
-                                    <li className="pb-2 text-xs font-normal xl:text-sm">
-                                        <div>
-                                            <span className="py-2 hover:font-normal hover:text-azaBrandColor font-light text-azaBlackShade3 after:h-[2px] after:transition-all after:bg-azaBrandColor transition duration-400 after:content-[''] after:mt-5 after:-bottom-[10px] after:right-0 after:absolute after:w-0 after:z-[10] hover:after:w-[fit-content]">Bandhgalas
-                                            </span>
-                                        </div>
-                                    </li>
-                                    <li className="pb-2 text-xs font-normal xl:text-sm">
-                                        <div>
-                                            <span className="py-2 hover:font-normal hover:text-azaBrandColor font-light text-azaBlackShade3 after:h-[2px] after:transition-all after:bg-azaBrandColor transition duration-400 after:content-[''] after:mt-5 after:-bottom-[10px] after:right-0 after:absolute after:w-0 after:z-[10] hover:after:w-[fit-content]">Shirts
-                                            </span>
-                                        </div>
-                                    </li>
-
+                                        );
+                                    })}
                                 </ul>
                             </div>
                         </div>

@@ -1,6 +1,6 @@
 #toqi-floating-button-container {
     position: fixed !important;
-    bottom: 13% !important;
+    bottom: 12% !important;
     right: 50px !important;
     z-index: 2147483647 !important;
 }
@@ -43,6 +43,7 @@
     color: white;
     margin: 0 !important;
     font-size: 12px;
+    font-weight: 600;
 }
 
 /* Mobile Responsive */

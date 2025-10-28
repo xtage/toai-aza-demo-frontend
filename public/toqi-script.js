@@ -1,11 +1,11 @@
 // Constants
-const API_URL = "https://ehskf3ef3g.execute-api.ap-south-1.amazonaws.com/prod";
-const BASE_AUTH = "https://ehskf3ef3g.execute-api.ap-south-1.amazonaws.com/prod";
-const STORE_ID = "store0000003";
+const API_URL = "https://an8nt5eo8g.execute-api.ap-south-1.amazonaws.com/stage";
+const BASE_AUTH = "https://an8nt5eo8g.execute-api.ap-south-1.amazonaws.com/stage";
+const STORE_ID = "store0000008";
 const AUTH_CREDENTIALS = "lumi.admin@xtagelabs.com:lumi.admin.123";
 
 // Global variables
-let PRODUCT_ID = "7514410582085"; // Default product ID
+let PRODUCT_ID = "134108"; // Default product ID
 let session_id = "";
 let chat_id = "";
 
@@ -41,6 +41,22 @@ function scrollToBottom() {
     }
 }
 
+function getPageContext() {
+    const pathname = window.location.pathname;
+    if (pathname === "/" || pathname === "/index.html") {
+      return { type: "home", id: "" };
+    } else if (pathname.includes("/collection")) {
+      const categoryName = pathname.split("/collection/")[1]?.split("/")[0] || "";
+      return { type: "category", id: "" };
+    } else if (pathname.includes("/product")) {
+      const productId = pathname.split("/product/")[1]?.split("/")[0] || "";
+      return { type: "product", id: productId || PRODUCT_ID };
+    }
+  
+    return { type: "unknown", id: "" };
+  }
+  
+
 // API Functions
 async function handleSessioninit() {
     try {
@@ -50,6 +66,12 @@ async function handleSessioninit() {
                 method: "POST",
                 headers: getAuthHeaders(),
                 body: JSON.stringify({
+                    static_session_data: {
+                        user_profile: {
+                            is_logged_in: false
+                        }
+                    },
+                    dynamic_session_data: {},
                     currency_conversion_rates: null,
                 }),
             }
@@ -59,6 +81,38 @@ async function handleSessioninit() {
         return data;
     } catch (error) {
         console.error("Session initialization error:", error);
+        throw error;
+    }
+}
+
+async function handleSessionChat(){
+    try {
+
+        const response = await fetch(
+            `${API_URL}/api/v1/session/chat/?chat_id=${chat_id}&store_id=${STORE_ID}`,
+            {
+                method: "POST",
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                    static_chat_data: {
+                        chat:{
+                            page: {
+                                type:"home",
+                                id: ""
+                            },
+                            channel: website
+                        }
+                    },
+                    dynamic_session_data: {},
+                    currency_conversion_rates: null,
+                }),
+            }
+        );
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        chat_id = data.chat_id;
+        return data;
+    } catch (error) {
         throw error;
     }
 }

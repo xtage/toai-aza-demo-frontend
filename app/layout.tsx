@@ -5,6 +5,9 @@ import "./Toqi.css"
 import ChatbotToggle from "@/components/ChatbotToggle";
 import ToqiChatbot from "@/components/ToqiChatbot";
 import Script from "next/script";
+import { CategoryProvider } from "@/context/CategoryContext";
+import CategoryInjector from "@/components/CategoryInjector";
+
 
 
 const geistSans = Geist({
@@ -27,6 +30,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
     <html lang="en">
       <head>
@@ -64,11 +68,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
-        <ToqiChatbot/>
+        <CategoryProvider>
+          {children}
+            <CategoryInjector/>
+
+        </CategoryProvider>
+        <ToqiChatbot />
         <ChatbotToggle />
+
+
         <Script src="/toqi-script.js" strategy="afterInteractive" />
-        
+
       </body>
     </html>
   );

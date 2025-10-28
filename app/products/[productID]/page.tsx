@@ -1,16 +1,63 @@
 import { notFound } from "next/navigation";
-import { Product, allMockProducts } from "../../collection/men/(data)";
+// import { Product, allMockProducts } from "../../collection/men/(data)";
 import Header from "@/components/Header";
 import Image from "next/image";
+import ProductCarousel from '../../../components/ProductCarousel'
+import CuratedCarousel from '../../../components/CuratedCarousel'
+import Footer from "@/components/Footer";
+import { Product } from "@/types/product";
 
-// Simulate DB/API fetch
-async function getProductById(id: string) {
-  return allMockProducts.find((p) => p.product_id.toString() === id) ?? null;
+
+async function getProductById(id: string): Promise<Product | null> {
+  try {
+    const response = await fetch(`http://localhost:3000/api/product-detail?product_id=${id}`, {
+      cache: 'no-store'
+    });
+
+    console.log('Response status:', response.status);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json(); // Add await here to parse JSON
+        
+    if (data.status) {
+      const productData = data.data[0];
+      const priceAttribute = productData.attributes?.find(
+        (attr: any) => attr.attribute_id === 'ATR001_DYN_price'
+      );
+      
+      // Find other attributes you might need
+      const mrpAttribute = productData.attributes?.find(
+        (attr: any) => attr.attribute_id === "ATR002_DYN_maximum_retail_price"
+      );
+      
+      const discountAttribute = productData.attributes?.find(
+        (attr: any) => attr.attribute_id === "ATR003_DYN_discount_percent"
+      );
+      
+      // Create the product object with extracted attributes
+      const product: Product = {
+        ...productData,
+        price: priceAttribute ? parseFloat(priceAttribute.attribute_value) : 0,
+        maximum_retail_price: mrpAttribute ? parseFloat(mrpAttribute.attribute_value) : 0,
+        discount_percentage: discountAttribute ? parseFloat(discountAttribute.attribute_value) : 0,
+      };
+      return product; // Assuming the product data is in data.data
+    }
+    return null;
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    return null;
+  }
 }
 
 function formatPrice(n: number) {
-  return "₹" + n.toLocaleString("en-IN");
+  return "₹" + n?.toLocaleString("en-IN");
 }
+
+
 
 export default async function ProductPage({
   params,
@@ -19,13 +66,111 @@ export default async function ProductPage({
 }) {
   const { productID } = await params;
   const product = await getProductById(productID);
-
+  
   if (!product) return notFound();
+  
+  console.log(product ,'hvkbvhjvhflj')
+
+
 
   // Extract images
-  const allImages = product.images?.split(',').map(img => img.trim()) || ['/default-image.jpg'];
-  const firstImage = allImages[0];
+  // const firstImage = allImages[0];
 
+  const similarItems = [
+    {
+      id: '101',
+      name: 'Embroidered Lehenga & Draped Blouse Set',
+      brand: 'Masumi Mewawalla X AZA',
+      price: 63600,
+      originalPrice: 79500,
+      discount: 20,
+      image: 'https://static3.azafashions.com/tr:w-450/uploads/product_gallery/1731503118491_1.jpg',
+      href: '/products/masumi-mewawalla-embroidered-lehenga-and-draped-blouse-set/595265',
+      isAzaExclusive: true,
+      inBags: 50,
+    },
+    {
+      id: '2',
+      name: 'Embroidered Lehenga & Draped Blouse Set',
+      brand: 'Masumi Mewawalla X AZA',
+      price: 63600,
+      originalPrice: 79500,
+      discount: 20,
+      image: 'https://static3.azafashions.com/tr:w-450/uploads/product_gallery/1731503118491_1.jpg',
+      href: '/products/masumi-mewawalla-embroidered-lehenga-and-draped-blouse-set/595265',
+      isAzaExclusive: true,
+      inBags: 50,
+    },
+    {
+      id: '3',
+      name: 'Embroidered Lehenga & Draped Blouse Set',
+      brand: 'Masumi Mewawalla X AZA',
+      price: 63600,
+      originalPrice: 79500,
+      discount: 20,
+      image: 'https://static3.azafashions.com/tr:w-450/uploads/product_gallery/1731503118491_1.jpg',
+      href: '/products/masumi-mewawalla-embroidered-lehenga-and-draped-blouse-set/595265',
+      isAzaExclusive: true,
+      inBags: 50,
+    },
+    {
+      id: '4',
+      name: 'Embroidered Lehenga & Draped Blouse Set',
+      brand: 'Masumi Mewawalla X AZA',
+      price: 63600,
+      originalPrice: 79500,
+      discount: 20,
+      image: 'https://static3.azafashions.com/tr:w-450/uploads/product_gallery/1731503118491_1.jpg',
+      href: '/products/masumi-mewawalla-embroidered-lehenga-and-draped-blouse-set/595265',
+      isAzaExclusive: true,
+      inBags: 50,
+    },
+    {
+      id: '5',
+      name: 'Embroidered Lehenga & Draped Blouse Set',
+      brand: 'Masumi Mewawalla X AZA',
+      price: 63600,
+      originalPrice: 79500,
+      discount: 20,
+      image: 'https://static3.azafashions.com/tr:w-450/uploads/product_gallery/1731503118491_1.jpg',
+      href: '/products/masumi-mewawalla-embroidered-lehenga-and-draped-blouse-set/595265',
+      isAzaExclusive: true,
+      inBags: 50,
+    },
+    {
+      id: '6',
+      name: 'Embroidered Lehenga & Draped Blouse Set',
+      brand: 'Masumi Mewawalla X AZA',
+      price: 63600,
+      originalPrice: 79500,
+      discount: 20,
+      image: 'https://static3.azafashions.com/tr:w-450/uploads/product_gallery/1731503118491_1.jpg',
+      href: '/products/masumi-mewawalla-embroidered-lehenga-and-draped-blouse-set/595265',
+      isAzaExclusive: true,
+      inBags: 50,
+    },
+    // ... more products
+  ];
+
+  const curatedItems = [
+    {
+      id: '1',
+      title: 'Everyday Staples',
+      href: '/aza-curates/spring-summer-2024/3421?sub_category_id=286',
+      images: [
+        'https://static3.azafashions.com/tr:w-317/uploads/product_gallery/1690296204497_1.jpg',
+        'https://static3.azafashions.com/tr:w-317/uploads/product_gallery/1691595663401_1.jpg'
+      ]
+    },
+  ];
+
+  const curatedItems1={
+    id:product.collections.name,
+    title:product.collections.name,
+    href:product.collections.url,
+    images:[product.collections.image, product.collections.image]
+  }
+  
   return (
     <>
       <Header />
@@ -37,22 +182,23 @@ export default async function ProductPage({
               {/* Thumbnail Sidebar */}
               <div className="relative flex-[0_0_7%] lg:flex-[0_0_72px] overflow-auto scrollbar-none">
                 <div className="absolute top-0 flex flex-col self-start w-full overflow-auto bottom-4 scroll-smooth scrollbar-none">
-                  {allImages.map((imgUrl, index) => (
+                  {/* {allImages.map((imgUrl, index) => ( */}
                     <div
-                      key={index}
+                      // key={index}
                       className="relative mb-4 overflow-hidden border-2 last:mb-0 rounded-xl border-transparent cursor-pointer hover:border-black"
                     >
                       <div className="pt-[150%] object-cover cursor-pointer bg-gray-100">
                         <Image
-                          alt={`Thumbnail ${index + 1}`}
-                          src={imgUrl}
+                          alt={product.product_name}
+                          src={product.product_image}
                           fill
+                          unoptimized
                           sizes="64px"
                           className="absolute top-0 left-0 object-cover"
                         />
                       </div>
                     </div>
-                  ))}
+                  {/* ))} */}
                 </div>
               </div>
 
@@ -61,11 +207,12 @@ export default async function ProductPage({
                 <div className="relative pt-[150%]">
                   <div className="absolute top-0 left-0 w-full h-full overflow-hidden rounded-lg">
                     <Image
-                      alt={product.title || "Product image"}
-                      src={firstImage}
+                      alt={product.product_name || "Product image"}
+                      src={product.product_image}
                       fill
                       sizes="(max-width: 768px) 100vw, 510px"
                       priority
+                      unoptimized
                       className="object-cover cursor-zoom-in"
                     />
 
@@ -84,7 +231,7 @@ export default async function ProductPage({
                     {/* Contains Button */}
                     <div className="absolute space-y-5 right-5 bottom-5">
                       <button className="rounded-sm h-[28px] px-3 text-xs bg-gray-100 text-gray-700 font-medium flex items-center space-x-2 max-w-[100%]">
-                        <p className="line-clamp-1">Contains: {product.Components || "Kurta,Pant"}</p>
+                        <p className="line-clamp-1">Contains: { 'h' || "Kurta,Pant"}</p>
                         <svg width="14" height="12" viewBox="0 0 14 12" fill="none">
                           <path d="M7 12L0 0H14L7 12Z" fill="#666" />
                         </svg>
@@ -130,7 +277,7 @@ export default async function ProductPage({
                     </svg>
                   </a>
                 </div>
-                <p className="text-sm text-gray-700">{product.title || "Red Satin Silk Printed Kurta And Joggers Set"}</p>
+                <p className="text-sm text-gray-700">{product.product_name || "Red Satin Silk Printed Kurta And Joggers Set"}</p>
               </div>
 
               <div className="flex items-start space-x-4">
@@ -150,22 +297,21 @@ export default async function ProductPage({
             {/* Price Section */}
             <div className="mt-6">
               <div className="relative">
-                <div className="relative flex items-center space-x-1.5">
-                  <p className="font-medium leading-[22px] lg:leading-6 lg:text-lg">
-                    <span className="font-normal">₹</span>
-                    {formatPrice(product.price || 19610).replace('₹', '')}
-                  </p>
-                  {product.discount_price && product.discount_price > product.price && (
-                    <>
-                      <p className="text-[13px] lg:text-sm leading-5 line-through text-gray-500">
-                        ₹{product.discount_price.toLocaleString("en-IN")}
-                      </p>
-                      <p className="text-[13px] lg:text-sm leading-5 text-green-600">
-                        {Math.round(((product.discount_price - product.price) / product.discount_price) * 100)}% OFF
-                      </p>
-                    </>
-                  )}
-                </div>
+                 <div className="flex items-center line-clamp-2 mt-[2px] space-x-[4px] tracking-[0.2px] lg:leading-5 font-medium">
+                <p className="text-[11px] text-azaBlackShade3 font-medium lg:text-[13px] text-ellipsis">
+                  ₹{product.price?.toLocaleString()}
+                </p>
+                {product.price && (
+                  <span className="mb-px line-through font-extralight text-[11px] text-ellipsis text-azaBlackShade4 lg:text-[13px]">
+                    ₹{product.maximum_retail_price?.toLocaleString()}
+                  </span>
+                )}
+                {product.discount_percentage && (
+                  <span className="mb-px text-[11px] text-ellipsis line-clamp-1 lg:text-[13px] text-azaGreen_6">
+                    {product.discount_percentage}% OFF
+                  </span>
+                )}
+              </div>
                 <p className="text-xs leading-3 mt-0.5 lg:text-xxs text-gray-600">(inclusive of all taxes)</p>
               </div>
             </div>
@@ -191,7 +337,7 @@ export default async function ProductPage({
 
                     {/* Size Buttons */}
                     <ul className="relative flex flex-wrap gap-2 text-xs lg:text-xs lg:gap-2 text-gray-700">
-                      {['S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL', '6XL'].map((size) => (
+                      {product?.sizes?.map((size) => (
                         <li
                           key={size}
                           className="flex flex-col items-center justify-center px-3 py-1 border rounded cursor-pointer min-h-10 min-w-10 group text-gray-700 hover:text-blue-600 border-gray-300 hover:border-blue-600"
@@ -265,11 +411,82 @@ export default async function ProductPage({
               </div>
             </div>
 
+            {/* Shipping section  */}
+            <div className="mt-4">
+              <button className="flex justify-between w-full text-azaBlackShade3 items-center pb-3 border-b border-azaGreyShade4" aria-expanded="true"><span className="lg:text-lg">Shipping &amp; Returns</span>
+                <div className=""><i className="block w-3 h-3 scale-125 bgImages transition-transform duration-300 transform rotate-180" style={{ backgroundPosition: "-119px -102px" }}></i></div>
+              </button>
+              <div className="overflow-hidden transition-all duration-300 ease-in-out" style={{ height: "216px" }}>
+                <div className="clear-both mt-8 text-sm lg:mt-7 text-azaBlackShade3">
+                  <div className="pb-1 space-y-3">
+                    <p className="text-[13px]  flex items-start gap-x-2 text-azaBlackShade3 "><i className="w-5 h-5 bgImages bg-[position:-446px_-310px] flex-[0_0_20px]"></i><span>Please select your size to view estimated shipping timelines </span></p>
+                    <p className="text-[13px]  flex items-start gap-x-2 text-azaBlackShade3 "><i className="w-5 h-5 bgImages bg-[position:-446px_-310px] flex-[0_0_20px]"></i><span>Free Shipping </span></p>
+                    <p className="text-[13px]  flex items-start gap-x-2 text-azaBlackShade3 "><i className="w-5 h-5 bgImages bg-[position:-446px_-310px] flex-[0_0_20px]"></i><span>Returnable within 2 days of delivery (3 days for Diamond tier members). Custom-made orders are not returnable. Product&apos;s original tags, if attached, must be intact for a successful return. If the original tags are missing, Aza Fashions may decline the return request and send the product back to the customer. Return handling charges would be applicable<a className="font-normal underline cursor-pointer text-azaBlackShade3">More Details</a></span></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* chat us wsection  */}
+            <div>
+              <div>
+                <p className="lg:text-lg text-azaBlackShade3">Customer Support</p>
+                <div className="flex items-center gap-3 px-3 mt-4 -mx-3 overflow-x-scroll scrollbar-none whitespace-nowrap lg:mt-4 lg:px-0 lg:mx-0">
+                  <button  className="flex items-center flex-1 h-10 px-6 py-1 space-x-2 text-xs border rounded-full cursor-pointer max-w-max border-azaBlackShade3 text-azaBlackShade3">
+                    < i className="ri-discuss-line"></i>
+
+                    <span className="flex items-center justify-center">Chat with us</span>
+                  </button>
+                  <a className="flex items-center flex-1 h-10 py-1 pl-6 pr-6 space-x-2 text-xs border rounded-full max-w-max border-azaBlackShade3 text-azaBlackShade3">
+                    <i className="ri-phone-line"></i>
+                    <span className="">022-42792123</span>
+                  </a>
+                  <a className="flex items-center flex-1 h-10 py-1 pl-6 pr-6 space-x-2 text-xs border rounded-full max-w-max border-azaBlackShade3 text-azaBlackShade3">
+                    < i className="ri-mail-send-line"></i>
+                    <span className="">Mail us</span>
+                  </a>
+                </div>
+              </div>
+            </div>
             {/*  */}
-            
+
           </div>
         </div>
+        {/* Similar section*/}
+
+        <div className="px-0.5 mt-2 lg:mt-8 mb-8 -mx-3 lg:w-full lg:mx-0 lg:px-0">
+          {/* Similar Items */}
+          <ProductCarousel
+            title="similar items"
+            products={similarItems}
+            filterButtons={true}
+          />
+
+          {/* Curated by Aza */}
+          <CuratedCarousel
+            title="Curated by Aza"
+            items={[curatedItems1]}
+          />
+
+          {/* Customers Also Viewed */}
+          <ProductCarousel
+            title="Customers Also Viewed"
+            products={similarItems} // Replace with actual data
+          />
+
+          {/* Best Paired With */}
+          <ProductCarousel
+            title="best paired with"
+            products={similarItems} // Replace with actual data
+          />
+
+          {/* Recently Viewed */}
+          <ProductCarousel
+            title="Recently Viewed"
+            products={similarItems} // Replace with actual data
+          />
+        </div>
       </main>
+      <Footer/>
     </>
   );
 }
