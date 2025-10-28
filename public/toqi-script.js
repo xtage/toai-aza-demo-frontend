@@ -5,7 +5,8 @@ const STORE_ID = "store0000008";
 const AUTH_CREDENTIALS = "lumi.admin@xtagelabs.com:lumi.admin.123";
 
 // Global variables
-let PRODUCT_ID = "134108"; // Default product ID
+let PRODUCT_ID =   window.location.pathname?.split("/products/")[1]?.split("/")[0] || "134108";
+console.log(PRODUCT_ID , window.pathname)
 let session_id = "";
 let chat_id = "";
 
@@ -44,18 +45,18 @@ function scrollToBottom() {
 function getPageContext() {
     const pathname = window.location.pathname;
     if (pathname === "/" || pathname === "/index.html") {
-      return { type: "home", id: "" };
+        return { type: "home", id: "" };
     } else if (pathname.includes("/collection")) {
-      const categoryName = pathname.split("/collection/")[1]?.split("/")[0] || "";
-      return { type: "category", id: "" };
+        const categoryId = window.CATEGORY_ID || "";
+        return { type: "category", id: categoryId };
     } else if (pathname.includes("/product")) {
-      const productId = pathname.split("/product/")[1]?.split("/")[0] || "";
-      return { type: "product", id: productId || PRODUCT_ID };
+        const productId = pathname.split("/products/")[1]?.split("/")[0] || "";
+        return { type: "product", id: productId};
     }
-  
+
     return { type: "unknown", id: "" };
-  }
-  
+}
+
 
 // API Functions
 async function handleSessioninit() {
@@ -78,6 +79,7 @@ async function handleSessioninit() {
         );
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
+        chat_id = data.chat_id;
         return data;
     } catch (error) {
         console.error("Session initialization error:", error);
@@ -85,9 +87,9 @@ async function handleSessioninit() {
     }
 }
 
-async function handleSessionChat(){
+async function handleSessionChat() {
     try {
-
+        const pageContext = getPageContext();
         const response = await fetch(
             `${API_URL}/api/v1/session/chat/?chat_id=${chat_id}&store_id=${STORE_ID}`,
             {
@@ -95,12 +97,12 @@ async function handleSessionChat(){
                 headers: getAuthHeaders(),
                 body: JSON.stringify({
                     static_chat_data: {
-                        chat:{
+                        chat: {
                             page: {
-                                type:"home",
-                                id: ""
+                                type: pageContext.type,
+                                id: pageContext.id
                             },
-                            channel: website
+                            channel: "website"
                         }
                     },
                     dynamic_session_data: {},
@@ -219,7 +221,7 @@ function renderPredefinedQuestions(questions) {
 
     predefinedQuestionsContainer.innerHTML = "";
     if (!Array.isArray(questions)) return;
-    
+
     predefinedQuestionsContainer.style.display = "flex";
     questions.forEach((question) => {
         const button = document.createElement("button");
@@ -616,8 +618,29 @@ function handleButtonClick(buttonType, callback) {
 // Initialization
 function initializeChat() {
     session_id = getOrCreateSessionId();
-    handleSessioninit();
-    fetchPredefinedQuestions();
+    const waitForCategory = new Promise((resolve) => {
+        const checkInterval = setInterval(() => {
+            if (window.CATEGORY_ID || window.location.pathname.includes("/product") || window.location.pathname === "/") {
+                clearInterval(checkInterval);
+                resolve();
+            }
+        }, 200);
+
+        // fallback timeout
+        setTimeout(() => {
+            clearInterval(checkInterval);
+            resolve();
+        }, 3000);
+    });
+
+    waitForCategory.then(() => {
+        handleSessioninit().then(() => {
+            handleSessionChat().then(()=>{
+              fetchPredefinedQuestions();
+            });
+        });
+    });    
+    // fetchPredefinedQuestions();
 
     // Set up event listeners
     const sendButton = document.getElementById("send-button");

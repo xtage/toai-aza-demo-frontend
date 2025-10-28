@@ -15,6 +15,10 @@ export interface ProductAttribute {
     product_name: string;
     product_url: string;
     source_name: string;
+    price:number,
+    maximum_retail_price:number,
+    discount_percentage:number,
+    product_image:string
   }
   
   export interface Product {

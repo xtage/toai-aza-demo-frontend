@@ -8,6 +8,7 @@ import axios from 'axios';
 import Footer from '@/components/Footer';
 import ProductFilters from '@/components/ProductFilters';
 import { useCategory } from "@/context/CategoryContext";
+import { usePathname } from 'next/navigation';
 
 
 function formatPrice(n: number) {
@@ -92,11 +93,24 @@ const filterSections = [
 
 
 export default function Page() {
+  const pathname = usePathname();
   const [product, setProduct] = useState<Product[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const { selectedSubCategory } = useCategory();
- 
+  const { selectedSubCategory ,setSelectedSubCategory } = useCategory();
+
+  // useEffect(() => {
+  //   if (pathname.includes("/collection/women")) {
+  //     setSelectedSubCategory("234"); // example category_id from API
+  //   } else if (pathname.includes("/collection/men")) {
+  //     setSelectedSubCategory("1234444");
+  //   } else if (pathname.includes("/collection/kids")) {
+  //     setSelectedSubCategory("456");
+  //   } else {
+  //     setSelectedSubCategory(null);
+  //   }
+  // }, [pathname, setSelectedSubCategory]);
+
   const fetchProduct = async () => {
     setLoading(true);
     setError(null);

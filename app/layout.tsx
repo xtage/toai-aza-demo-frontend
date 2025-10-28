@@ -71,7 +71,6 @@ export default function RootLayout({
         <CategoryProvider>
           {children}
             <CategoryInjector/>
-
         </CategoryProvider>
         <ToqiChatbot />
         <ChatbotToggle />

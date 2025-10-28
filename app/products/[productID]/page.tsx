@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
-// import { Product, allMockProducts } from "../../collection/men/(data)";
 import Header from "@/components/Header";
 import Image from "next/image";
 import ProductCarousel from '../../../components/ProductCarousel'
 import CuratedCarousel from '../../../components/CuratedCarousel'
 import Footer from "@/components/Footer";
 import { Product } from "@/types/product";
+import ReinitializeChat from "@/components/ReinitializeChat";
 
 
 async function getProductById(id: string): Promise<Product | null> {
@@ -14,29 +14,27 @@ async function getProductById(id: string): Promise<Product | null> {
       cache: 'no-store'
     });
 
-    console.log('Response status:', response.status);
-    
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     const data = await response.json(); // Add await here to parse JSON
-        
+
     if (data.status) {
       const productData = data.data[0];
       const priceAttribute = productData.attributes?.find(
         (attr: any) => attr.attribute_id === 'ATR001_DYN_price'
       );
-      
+
       // Find other attributes you might need
       const mrpAttribute = productData.attributes?.find(
         (attr: any) => attr.attribute_id === "ATR002_DYN_maximum_retail_price"
       );
-      
+
       const discountAttribute = productData.attributes?.find(
         (attr: any) => attr.attribute_id === "ATR003_DYN_discount_percent"
       );
-      
+
       // Create the product object with extracted attributes
       const product: Product = {
         ...productData,
@@ -66,15 +64,8 @@ export default async function ProductPage({
 }) {
   const { productID } = await params;
   const product = await getProductById(productID);
-  
+
   if (!product) return notFound();
-  
-  console.log(product ,'hvkbvhjvhflj')
-
-
-
-  // Extract images
-  // const firstImage = allImages[0];
 
   const similarItems = [
     {
@@ -164,16 +155,32 @@ export default async function ProductPage({
     },
   ];
 
-  const curatedItems1={
-    id:product.collections.name,
-    title:product.collections.name,
-    href:product.collections.url,
-    images:[product.collections.image, product.collections.image]
+  const curatedItems1 = {
+    id: product.collections.name,
+    title: product.collections.name,
+    href: product.collections.url,
+    images: [product.collections.image, product.collections.image]
   }
-  
+
+  const suggested_items = product.suggested_items.map((item) => ({
+    id: item.product_id,
+    name: item.product_name,
+    brand: 'Masumi Mewawalla X AZA',
+    price: item.price,
+    originalPrice: item.maximum_retail_price,
+    discount: item.discount_percentage,
+    image: item.product_image,
+    href: item.product_url,
+    isAzaExclusive: true,
+    inBags: 50,
+  }))
+
+  console.log(product, 'qwertyuiop[')
+
   return (
     <>
       <Header />
+      <ReinitializeChat />
       <main className="wrapperContainer py-8">
         <div className="flex flex-col flex-wrap justify-between lg:flex-row">
           {/* LEFT: IMAGE GALLERY - Matching the reference structure */}
@@ -183,21 +190,21 @@ export default async function ProductPage({
               <div className="relative flex-[0_0_7%] lg:flex-[0_0_72px] overflow-auto scrollbar-none">
                 <div className="absolute top-0 flex flex-col self-start w-full overflow-auto bottom-4 scroll-smooth scrollbar-none">
                   {/* {allImages.map((imgUrl, index) => ( */}
-                    <div
-                      // key={index}
-                      className="relative mb-4 overflow-hidden border-2 last:mb-0 rounded-xl border-transparent cursor-pointer hover:border-black"
-                    >
-                      <div className="pt-[150%] object-cover cursor-pointer bg-gray-100">
-                        <Image
-                          alt={product.product_name}
-                          src={product.product_image}
-                          fill
-                          unoptimized
-                          sizes="64px"
-                          className="absolute top-0 left-0 object-cover"
-                        />
-                      </div>
+                  <div
+                    // key={index}
+                    className="relative mb-4 overflow-hidden border-2 last:mb-0 rounded-xl border-transparent cursor-pointer hover:border-black"
+                  >
+                    <div className="pt-[150%] object-cover cursor-pointer bg-gray-100">
+                      <Image
+                        alt={product.product_name}
+                        src={product.product_image}
+                        fill
+                        unoptimized
+                        sizes="64px"
+                        className="absolute top-0 left-0 object-cover"
+                      />
                     </div>
+                  </div>
                   {/* ))} */}
                 </div>
               </div>
@@ -297,21 +304,21 @@ export default async function ProductPage({
             {/* Price Section */}
             <div className="mt-6">
               <div className="relative">
-                 <div className="flex items-center line-clamp-2 mt-[2px] space-x-[4px] tracking-[0.2px] lg:leading-5 font-medium">
-                <p className="text-[11px] text-azaBlackShade3 font-medium lg:text-[13px] text-ellipsis">
-                  ₹{product.price?.toLocaleString()}
-                </p>
-                {product.price && (
-                  <span className="mb-px line-through font-extralight text-[11px] text-ellipsis text-azaBlackShade4 lg:text-[13px]">
-                    ₹{product.maximum_retail_price?.toLocaleString()}
-                  </span>
-                )}
-                {product.discount_percentage && (
-                  <span className="mb-px text-[11px] text-ellipsis line-clamp-1 lg:text-[13px] text-azaGreen_6">
-                    {product.discount_percentage}% OFF
-                  </span>
-                )}
-              </div>
+                <div className="flex items-center line-clamp-2 mt-[2px] space-x-[4px] tracking-[0.2px] lg:leading-5 font-medium">
+                  <p className="text-[11px] text-azaBlackShade3 font-medium lg:text-[13px] text-ellipsis">
+                    ₹{product.price?.toLocaleString()}
+                  </p>
+                  {product.price && (
+                    <span className="mb-px line-through font-extralight text-[11px] text-ellipsis text-azaBlackShade4 lg:text-[13px]">
+                      ₹{product.maximum_retail_price?.toLocaleString()}
+                    </span>
+                  )}
+                  {product.discount_percentage && (
+                    <span className="mb-px text-[11px] text-ellipsis line-clamp-1 lg:text-[13px] text-azaGreen_6">
+                      {product.discount_percentage}% OFF
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs leading-3 mt-0.5 lg:text-xxs text-gray-600">(inclusive of all taxes)</p>
               </div>
             </div>
@@ -431,7 +438,7 @@ export default async function ProductPage({
               <div>
                 <p className="lg:text-lg text-azaBlackShade3">Customer Support</p>
                 <div className="flex items-center gap-3 px-3 mt-4 -mx-3 overflow-x-scroll scrollbar-none whitespace-nowrap lg:mt-4 lg:px-0 lg:mx-0">
-                  <button  className="flex items-center flex-1 h-10 px-6 py-1 space-x-2 text-xs border rounded-full cursor-pointer max-w-max border-azaBlackShade3 text-azaBlackShade3">
+                  <button className="flex items-center flex-1 h-10 px-6 py-1 space-x-2 text-xs border rounded-full cursor-pointer max-w-max border-azaBlackShade3 text-azaBlackShade3">
                     < i className="ri-discuss-line"></i>
 
                     <span className="flex items-center justify-center">Chat with us</span>
@@ -455,38 +462,48 @@ export default async function ProductPage({
 
         <div className="px-0.5 mt-2 lg:mt-8 mb-8 -mx-3 lg:w-full lg:mx-0 lg:px-0">
           {/* Similar Items */}
-          <ProductCarousel
-            title="similar items"
-            products={similarItems}
-            filterButtons={true}
-          />
+          {
+            suggested_items.length > 0 && (
+              <ProductCarousel
+                title="similar items"
+                products={suggested_items}
+                filterButtons={false}
+              />
+            )
+          }
+
+          {
+            [curatedItems1].length > 0 && (
+              <CuratedCarousel
+                title="Curated by Aza"
+                items={[curatedItems1]}
+              />
+            )
+          }
 
           {/* Curated by Aza */}
-          <CuratedCarousel
-            title="Curated by Aza"
-            items={[curatedItems1]}
-          />
+
 
           {/* Customers Also Viewed */}
-          <ProductCarousel
+          {/* <ProductCarousel
             title="Customers Also Viewed"
             products={similarItems} // Replace with actual data
-          />
+          /> */}
 
           {/* Best Paired With */}
-          <ProductCarousel
+          {/* <ProductCarousel
             title="best paired with"
             products={similarItems} // Replace with actual data
-          />
+          /> */}
 
           {/* Recently Viewed */}
-          <ProductCarousel
+          {/* <ProductCarousel
             title="Recently Viewed"
             products={similarItems} // Replace with actual data
-          />
+          /> */}
         </div>
       </main>
-      <Footer/>
+      <Footer />
     </>
   );
 }

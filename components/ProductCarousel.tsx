@@ -29,7 +29,7 @@ interface Product {
 
 interface ProductCarouselProps {
   title: string;
-  products: Product[];
+  products: any;
   filterButtons?: boolean;
   className?: string;
 }
@@ -109,7 +109,7 @@ export default function ProductCarousel({
               }}
               className="relative"
             >
-              {products.map((product) => (
+              {products.map((product: Product) => (
                 <SwiperSlide key={product.id} className="!w-[272px]">
                   <ProductCard product={product} />
                 </SwiperSlide>

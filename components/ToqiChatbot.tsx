@@ -9,7 +9,7 @@ export default function ToqiChatbot() {
                 <div className="chatbot-container" id="chatbot-section">
                     <div className="chat-header">
                         <h4>Have <span>questions?</span> Ask our AI expert.</h4>
-                        <div className="close-btn">
+                        <div className="close-btn" id="close-toqi-button">
                             <i className="ri-close-line"></i>
                         </div>
                     </div>

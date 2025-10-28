@@ -1,6 +1,6 @@
 "use client"
 import Link from "next/link";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { usePathname } from 'next/navigation'
 import { useCategory } from "@/context/CategoryContext";
@@ -44,6 +44,7 @@ const Header = () => {
         const currentPage = entries.find(([key, value]) => value === pathname);
         return currentPage ? currentPage[0] : null;
     }
+
     const currentPage = getCurrentPageName();
 
 
@@ -77,12 +78,12 @@ const Header = () => {
         }
     };
 
-    const findCategory = (cats: Category[]): Category | null => {
+    const findCategory = useCallback((cats: Category[]): Category | null => {
         for (const cat of cats) {
             if (cat.category_name === currentPage) return cat;
         }
         return null;
-    };
+    }, [currentPage]);
 
     const getSubCategories = () => {
         if (!categories?.data) return [];
@@ -96,14 +97,15 @@ const Header = () => {
 
     useEffect(() => {
         if (!categories?.data) return;
-        
+      
         const activeCat = findCategory(categories.data);
-        
-        if (categories.data.length > 0 && !selectedSubCategory && activeCat) {
-            setSelectedSubCategory(activeCat.category_id);
+        if (activeCat) {
+          // Always update selectedSubCategory when page (pathname) changes
+          setSelectedSubCategory(activeCat.category_id);
         }
-    }, [categories, findCategory, setSelectedSubCategory, selectedSubCategory]);
-        
+      }, [categories, findCategory, pathname, setSelectedSubCategory]);
+      
+
     return (
         <>
             <header className="sticky top-0 z-20 max-w-full mx-auto bg-white lg:hidden mobileHeader shadow-[0px_1px_3px_0px_rgba(66,66,66,0.15),_0px_0px_0px_1px_rgba(66,66,66,0.05)]">
