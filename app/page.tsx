@@ -27,13 +27,10 @@ export default function Home() {
         </div>
       </div>
       <main className="mt-3">
-        <div className="relative lg:-mt-3">
+        <div className="relative lg:-mt-9">
           <div className="pb-3 lg:pb-5 space-y-4 lg:space-y-8 pt-0 wrapperContainer lg:pt-0">
             <div className="overflow-hidden rounded-3xl lg:rounded-tl-none lg:rounded-tr-none">
               <div className="slick-slider -m-0.5 slick-initialized" dir="ltr">
-                <button className="flex items-center justify-center cursor-pointer before:content-[&#x27;&#x27;] hover:opacity-1 z-[1] [&amp;.slick-disabled]:opacity-0 w-10 h-10 rounded-full bg-[#939393]/20 hover:bg-[#939393]/50 border border-[rgba(255,255,255,0.1)] border-solid slick-arrow slick-prev left-7">
-                  <i className="bgImages block w-[18px] h-[18px] bg-[position:-319px_-260px]"></i>
-                </button>
                 <div className="slick-list">
                   <div
                     className="slick-track"
@@ -228,7 +225,6 @@ export default function Home() {
                     <div
                       data-index="3"
                       className="slick-slide"
-                      // tabindex="-1"
                       aria-hidden="true"
                       style={{ outline: "none", width: "7.6923076923076925%" }}
                     >
@@ -263,7 +259,7 @@ export default function Home() {
                                       bottom: 0,
                                       color: "transparent",
                                     }}
-                                    src="../static3.azafashions.com/uploads/landing_page_section_content_image/1760681716909anniversary-sale-top.jpg"
+                                    src="/static3.azafashions.com/uploads/landing_page_section_content_image/1760681716909anniversary-sale-top.jpg"
                                   />
                                 </div>
                               </a>
@@ -650,9 +646,6 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                <button className="flex items-center justify-center cursor-pointer before:content-[&#x27;&#x27;] hover:opacity-1 z-[1] [&amp;.slick-disabled]:opacity-0 w-10 h-10 rounded-full bg-[#939393]/20 hover:bg-[#939393]/50 border border-[rgba(255,255,255,0.1)] border-solid slick-arrow slick-next right-7">
-                  <i className="bgImages block w-[18px] h-[18px] bg-[position:-300px_-260px]"></i>
-                </button>
               </div>
             </div>
           </div>
@@ -668,9 +661,6 @@ export default function Home() {
                   className="slick-slider [&amp;_.slick-track]:flex [&amp;_.slick-slide]:h-[inherit] [&amp;_.slick-slide&gt;div]:h-full slick-initialized"
                   dir="ltr"
                 >
-                  <button className="flex items-center justify-center cursor-pointer before:content-[&#x27;&#x27;] hover:opacity-1 [&amp;.slick-disabled]:opacity-0 w-10 h-10 rounded-full !bg-white hover:bg-white shadow-[0px_2px_4px_0px_#00000040] slick-arrow slick-prev slick-disabled -left-2 z-[2] top-[35%]">
-                    <i className="bgImages block w-[18px] h-[18px] bg-[position:-319px_-242px]"></i>
-                  </button>
                   <div className="slick-list">
                     <div
                       className="slick-track"
@@ -1297,9 +1287,6 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                  <button className="flex items-center justify-center cursor-pointer before:content-[&#x27;&#x27;] hover:opacity-1 [&amp;.slick-disabled]:opacity-0 w-10 h-10 rounded-full !bg-white hover:bg-white shadow-[0px_2px_4px_0px_#00000040] slick-arrow slick-next -right-2 z-[2] top-[35%]">
-                    <i className="bgImages block w-[18px] h-[18px] bg-[position:-300px_-242px]"></i>
-                  </button>
                 </div>
                 <div className="mt-6 lg:mt-8 flex items-center justify-center gap-x-4 lg:gap-x-6">
                   <div>
@@ -1351,7 +1338,6 @@ export default function Home() {
                                     <a
                                       className="group"
                                       data-column_number="1"
-                                      href="designers/aza-x-shilpa-shetty-kundra/4367a897.html?sort=new_arrivals&amp;main_category_id=3"
                                     >
                                       <div
                                         className="relative overflow-hidden w-full"
@@ -1407,7 +1393,6 @@ export default function Home() {
                                     <a
                                       className="group"
                                       data-column_number="2"
-                                      href="designers/nachiket-barve/140a897.html?sort=new_arrivals&amp;main_category_id=3"
                                     >
                                       <div
                                         className="relative overflow-hidden w-full"
@@ -1463,7 +1448,6 @@ export default function Home() {
                                     <a
                                       className="group"
                                       data-column_number="3"
-                                      href="designers/seema-gujral/1672a897.html?sort=new_arrivals&amp;main_category_id=3"
                                     >
                                       <div
                                         className="relative overflow-hidden w-full"
@@ -1519,7 +1503,6 @@ export default function Home() {
                                     <a
                                       className="group"
                                       data-column_number="4"
-                                      href="designers/ritu-kumar/319a897.html?sort=new_arrivals&amp;main_category_id=3"
                                     >
                                       <div
                                         className="relative overflow-hidden w-full"
@@ -1575,7 +1558,6 @@ export default function Home() {
                                     <a
                                       className="group"
                                       data-column_number="5"
-                                      href="designers/torani/1800a897.html?sort=new_arrivals&amp;main_category_id=3"
                                     >
                                       <div
                                         className="relative overflow-hidden w-full"
@@ -1631,7 +1613,6 @@ export default function Home() {
                                     <a
                                       className="group"
                                       data-column_number="6"
-                                      href="designers/mayyur-girotra-couture/2634a897.html?sort=new_arrivals&amp;main_category_id=3"
                                     >
                                       <div
                                         className="relative overflow-hidden w-full"
@@ -1687,7 +1668,6 @@ export default function Home() {
                                     <a
                                       className="group"
                                       data-column_number="7"
-                                      href="designers/sahil-kochhar/133a897.html?sort=new_arrivals&amp;main_category_id=3"
                                     >
                                       <div
                                         className="relative overflow-hidden w-full"
@@ -1743,7 +1723,6 @@ export default function Home() {
                                     <a
                                       className="group"
                                       data-column_number="8"
-                                      href="designers/ampm/205a897.html?sort=new_arrivals&amp;main_category_id=3"
                                     >
                                       <div
                                         className="relative overflow-hidden w-full"
@@ -1799,7 +1778,6 @@ export default function Home() {
                                     <a
                                       className="group"
                                       data-column_number="9"
-                                      href="designers/archana-kochhar/2613a897.html?sort=new_arrivals&amp;main_category_id=3"
                                     >
                                       <div
                                         className="relative overflow-hidden w-full"
@@ -1855,7 +1833,6 @@ export default function Home() {
                                     <a
                                       className="group"
                                       data-column_number="10"
-                                      href="designers/two-sisters-by-gyans/3051a897.html?sort=new_arrivals&amp;main_category_id=3"
                                     >
                                       <div
                                         className="relative overflow-hidden w-full"
@@ -1894,9 +1871,6 @@ export default function Home() {
                         </div>
                       </div>
                     </div>
-                    <button className="flex items-center justify-center cursor-pointer before:content-[&#x27;&#x27;] hover:opacity-1 [&amp;.slick-disabled]:opacity-0 w-10 h-10 rounded-full !bg-white hover:bg-white shadow-[0px_2px_4px_0px_#00000040] slick-arrow slick-next -right-2 z-[2]">
-                      <i className="bgImages block w-[18px] h-[18px] bg-[position:-300px_-242px]"></i>
-                    </button>
                   </div>
                 </div>
               </div>
