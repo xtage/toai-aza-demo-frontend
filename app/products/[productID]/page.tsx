@@ -6,6 +6,7 @@ import CuratedCarousel from '../../../components/CuratedCarousel'
 import Footer from "@/components/Footer";
 import { Product } from "@/types/product";
 import ReinitializeChat from "@/components/ReinitializeChat";
+import ChatUsPage from "@/components/ChatUs";
 
 
 async function getProductById(id: string): Promise<Product | null> {
@@ -155,25 +156,62 @@ export default async function ProductPage({
     },
   ];
 
-  const curatedItems1 = {
-    id: product.collections.name,
-    title: product.collections.name,
-    href: product.collections.url,
-    images: [product.collections.image, product.collections.image]
-  }
+  const curatedItems1 = product.collections.map((item) => (
+    {
+      id: item.name,
+      title: item.name,
+      href: item.url,
+      images: [item.image, item.image]
+    }
+  ))
 
-  const suggested_items = product.suggested_items.map((item) => ({
-    id: item.product_id,
-    name: item.product_name,
-    brand: 'Masumi Mewawalla X AZA',
-    price: item.price,
-    originalPrice: item.maximum_retail_price,
-    discount: item.discount_percentage,
-    image: item.product_image,
-    href: item.product_url,
-    isAzaExclusive: true,
-    inBags: 50,
-  }))
+  const suggested_items = product.suggested_items
+    ?.filter((item) => item.source_name === "Closest Match")
+    .map((item) => ({
+      id: item.product_id,
+      name: item.product_name,
+      brand: 'Masumi Mewawalla X AZA',
+      price: item.price,
+      originalPrice: item.maximum_retail_price,
+      discount: item.discount_percentage,
+      image: item.product_image,
+      href: item.product_url,
+      isAzaExclusive: true,
+      inBags: 50,
+    })) || [];
+
+  const suggested_itemsCustomers = product.suggested_items
+    ?.filter((item) => item.source_name === "Customers Also Viewed") // ✅ filter by Customers Also Viewed
+    .map((item) => ({
+      id: item.product_id,
+      name: item.product_name,
+      brand: 'Masumi Mewawalla X AZA',
+      price: item.price,
+      originalPrice: item.maximum_retail_price,
+      discount: item.discount_percentage,
+      image: item.product_image,
+      href: item.product_url,
+      isAzaExclusive: true,
+      inBags: 50,
+    })) || [];
+
+
+  const bestPairedWith = product.suggested_items
+    .filter((item) => item.source_name === "Best Paired With")
+    .map((item) => ({
+      id: item.product_id,
+      name: item.product_name,
+      brand: "Masumi Mewawalla X AZA",
+      price: item.price,
+      originalPrice: item.maximum_retail_price,
+      discount: item.discount_percentage,
+      image: item.product_image,
+      href: item.product_url,
+      isAzaExclusive: true,
+      inBags: 50,
+    })) || [];
+
+
 
   console.log(product, 'qwertyuiop[')
 
@@ -304,24 +342,46 @@ export default async function ProductPage({
             {/* Price Section */}
             <div className="mt-6">
               <div className="relative">
-                <div className="flex items-center line-clamp-2 mt-[2px] space-x-[4px] tracking-[0.2px] lg:leading-5 font-medium">
-                  <p className="text-[11px] text-azaBlackShade3 font-medium lg:text-[13px] text-ellipsis">
-                    ₹{product.price?.toLocaleString()}
-                  </p>
-                  {product.price && (
-                    <span className="mb-px line-through font-extralight text-[11px] text-ellipsis text-azaBlackShade4 lg:text-[13px]">
-                      ₹{product.maximum_retail_price?.toLocaleString()}
-                    </span>
-                  )}
-                  {product.discount_percentage && (
-                    <span className="mb-px text-[11px] text-ellipsis line-clamp-1 lg:text-[13px] text-azaGreen_6">
-                      {product.discount_percentage}% OFF
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs leading-3 mt-0.5 lg:text-xxs text-gray-600">(inclusive of all taxes)</p>
+                {product.price ? (
+                  <>
+                    <div className="flex items-center line-clamp-2 mt-[2px] space-x-[4px] tracking-[0.2px] lg:leading-5 font-medium">
+                      {/* Price */}
+                      <p className="text-[11px] text-azaBlackShade3 font-medium lg:text-[13px] text-ellipsis">
+                        ₹{Number(product.price).toLocaleString()}
+                      </p>
+
+                      {/* Show MRP only if it’s greater than price */}
+                      {Number(product.maximum_retail_price) > Number(product.price) && (
+                        <span className="mb-px line-through font-extralight text-[11px] text-ellipsis text-azaBlackShade4 lg:text-[13px]">
+                          ₹{Number(product.maximum_retail_price).toLocaleString()}
+                        </span>
+                      )}
+
+                      {/* Show discount only if it's a valid finite number and > 0 */}
+                      {Number.isFinite(product.discount_percentage) &&
+                        product.discount_percentage > 0 && (
+                          <span className="mb-px text-[11px] text-ellipsis line-clamp-1 lg:text-[13px] text-azaGreen_6">
+                            {product.discount_percentage}% OFF
+                          </span>
+                        )}
+                    </div>
+
+                    <p className="text-xs leading-3 mt-0.5 lg:text-xxs text-gray-600">
+                      (inclusive of all taxes)
+                    </p>
+                  </>
+                ) : (
+                  <div className="flex items-center mt-1.5 space-x-2 bg-gray-100 rounded-md py-1.5 px-2 w-fit">
+                    <i className="ri-alert-line text-[14px] text-gray-600"></i>
+                    <p className="text-[12px] text-gray-700 font-medium uppercase tracking-wide">
+                      Out of Stock
+                    </p>
+                  </div>
+
+                )}
               </div>
             </div>
+
 
             {/* Size Selection */}
             <div className="mt-6 space-y-4 lg:space-y-8">
@@ -434,26 +494,7 @@ export default async function ProductPage({
               </div>
             </div>
             {/* chat us wsection  */}
-            <div>
-              <div>
-                <p className="lg:text-lg text-azaBlackShade3">Customer Support</p>
-                <div className="flex items-center gap-3 px-3 mt-4 -mx-3 overflow-x-scroll scrollbar-none whitespace-nowrap lg:mt-4 lg:px-0 lg:mx-0">
-                  <button className="flex items-center flex-1 h-10 px-6 py-1 space-x-2 text-xs border rounded-full cursor-pointer max-w-max border-azaBlackShade3 text-azaBlackShade3">
-                    < i className="ri-discuss-line"></i>
-
-                    <span className="flex items-center justify-center">Chat with us</span>
-                  </button>
-                  <a className="flex items-center flex-1 h-10 py-1 pl-6 pr-6 space-x-2 text-xs border rounded-full max-w-max border-azaBlackShade3 text-azaBlackShade3">
-                    <i className="ri-phone-line"></i>
-                    <span className="">022-42792123</span>
-                  </a>
-                  <a className="flex items-center flex-1 h-10 py-1 pl-6 pr-6 space-x-2 text-xs border rounded-full max-w-max border-azaBlackShade3 text-azaBlackShade3">
-                    < i className="ri-mail-send-line"></i>
-                    <span className="">Mail us</span>
-                  </a>
-                </div>
-              </div>
-            </div>
+           <ChatUsPage/>
             {/*  */}
 
           </div>
@@ -461,7 +502,6 @@ export default async function ProductPage({
         {/* Similar section*/}
 
         <div className="px-0.5 mt-2 lg:mt-8 mb-8 -mx-3 lg:w-full lg:mx-0 lg:px-0">
-          {/* Similar Items */}
           {
             suggested_items.length > 0 && (
               <ProductCarousel
@@ -471,35 +511,35 @@ export default async function ProductPage({
               />
             )
           }
-
           {
-            [curatedItems1].length > 0 && (
+            curatedItems1.length > 0 && (
               <CuratedCarousel
                 title="Curated by Aza"
-                items={[curatedItems1]}
+                items={curatedItems1}
+              />
+            )
+          }
+          {
+            suggested_itemsCustomers.length > 0 && (
+              <ProductCarousel
+                title="Customers Also Viewed"
+                products={suggested_itemsCustomers}
+              />
+            )
+          }
+          {
+            bestPairedWith.length > 0 && (
+              <ProductCarousel
+                title="best paired with"
+                products={bestPairedWith}
               />
             )
           }
 
-          {/* Curated by Aza */}
-
-
-          {/* Customers Also Viewed */}
-          {/* <ProductCarousel
-            title="Customers Also Viewed"
-            products={similarItems} // Replace with actual data
-          /> */}
-
-          {/* Best Paired With */}
-          {/* <ProductCarousel
-            title="best paired with"
-            products={similarItems} // Replace with actual data
-          /> */}
-
           {/* Recently Viewed */}
           {/* <ProductCarousel
             title="Recently Viewed"
-            products={similarItems} // Replace with actual data
+            products={similarItems} 
           /> */}
         </div>
       </main>

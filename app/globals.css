@@ -1,0 +1,75 @@
+.product-card {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .product-card:hover .product-overlay {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .product-overlay {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.85);
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    padding: 1rem;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(100%);
+    backdrop-filter: blur(4px);
+  }
+  
+  .product-overlay .sizes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    max-height: 7rem;
+    overflow-y: auto;
+  }
+  
+  .product-overlay .size-option {
+    border: 1px solid var(--azaGreyShade1, #ddd);
+    background: white;
+    color: black;
+    font-weight: 600;
+    min-width: 3rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+  }
+  
+  .product-overlay .action-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-top: 1rem;
+  }
+  
+  .product-overlay .btn-add {
+    flex: 0.6;
+    height: 2.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: var(--AzaRed, #c73d1f);
+    color: white;
+    border-radius: 0.5rem;
+  }
+  
+  .product-overlay .btn-buy {
+    flex: 0.4;
+    height: 2.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: white;
+    color: var(--azaBlackShade3, #333);
+    border: 1px solid var(--azaGreyShade1, #ddd);
+    border-radius: 0.5rem;
+  }
+  

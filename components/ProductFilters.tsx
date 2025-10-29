@@ -79,7 +79,7 @@ export default function ProductFilters({ filters, onFilterChange }: ProductFilte
   };
 
   return (
-    <div className="hidden lg:block mr-6">
+    <div className="hidden lg:block mr-2">
       <div className="hidden lg:block">
         {filters.map((section, index) => (
           <FilterSection

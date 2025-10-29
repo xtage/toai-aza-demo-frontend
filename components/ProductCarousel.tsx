@@ -147,6 +147,7 @@ function ProductCard({ product }: { product: Product }) {
               alt={product.name}
               src={product.image}
               fill
+              unoptimized
               className="object-contain transition-all duration-300 delay-300 ease-in-out opacity-100 group-hover:scale-105"
               sizes="272px"
             />
@@ -168,16 +169,16 @@ function ProductCard({ product }: { product: Product }) {
               </h3>
               <div className="flex items-center line-clamp-2 mt-[2px] space-x-[4px] tracking-[0.2px] lg:leading-5 font-medium">
                 <p className="text-[11px] text-azaBlackShade3 font-medium lg:text-[13px] text-ellipsis">
-                  ₹{product.price.toLocaleString()}
+                  ₹{product?.price?.toLocaleString()}
                 </p>
                 {product.originalPrice && (
                   <span className="mb-px line-through font-extralight text-[11px] text-ellipsis text-azaBlackShade4 lg:text-[13px]">
-                    ₹{product.originalPrice.toLocaleString()}
+                    ₹{product?.originalPrice?.toLocaleString()}
                   </span>
                 )}
-                {product.discount && (
+                {product?.discount && (
                   <span className="mb-px text-[11px] text-ellipsis line-clamp-1 lg:text-[13px] text-azaGreen_6">
-                    {product.discount}% OFF
+                    {product?.discount}% OFF
                   </span>
                 )}
               </div>

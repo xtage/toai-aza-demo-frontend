@@ -33,7 +33,7 @@ export interface ProductAttribute {
     sizes: string[];
     in_stock: boolean;
     attributes: ProductAttribute[];
-    collections: Collection;
+    collections: Collection[];
     suggested_items: SuggestedItem[];
     images:string[]
   }

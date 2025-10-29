@@ -1,111 +1,101 @@
-"use client"
+"use client";
 import Link from "next/link";
-import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
-import { usePathname } from 'next/navigation'
+import { useState, useEffect, useCallback } from "react";
+import axios from "axios";
+import { usePathname } from "next/navigation";
 import { useCategory } from "@/context/CategoryContext";
 
-
 const PagePathNames = {
-    Men: '/collection/men',
-    Women: '/collection/women',
-    Kids: '/collection/kids',
-    Accessories: '/collection/accessories',
-    Jewellery: '/collection/jewellery',
-}
+  Men: "/collection/men",
+  Women: "/collection/women",
+  Kids: "/collection/kids",
+  Accessories: "/collection/accessories",
+  Jewellery: "/collection/jewellery",
+};
+
+const PageToCategoryMap: Record<string, string> = {
+  Men: "CAT0000003",
+  Women: "CAT0000002",
+  Kids: "CAT0000001",
+  Accessories: "CAT0000004",
+  Jewellery: "CAT0000005",
+};
 
 interface Category {
-    category_id: string;
-    category_name: string;
-    parent_category_id: string;
-    level_id: string;
-    category_url: string;
-    sub_categories?: Category[];
-    sub_sub_categories?: Category[];
+  category_id: string;
+  category_name: string;
+  parent_category_id: string;
+  level_id: string;
+  category_url: string;
+  sub_categories?: Category[];
+  sub_sub_categories?: Category[];
 }
 
 interface CategoryResponse {
-    status: boolean;
-    message: string;
-    data: Category[];
+  status: boolean;
+  message: string;
+  data: Category[];
 }
 
 const Header = () => {
-    const pathname = usePathname()
-    const { selectedSubCategory, setSelectedSubCategory } = useCategory();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [categories, setCategories] = useState<CategoryResponse | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>(null);
-    const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const pathname = usePathname();
+  const { selectedSubCategory, setSelectedSubCategory } = useCategory();
 
-    const getCurrentPageName = () => {
-        const entries = Object.entries(PagePathNames);
-        const currentPage = entries.find(([key, value]) => value === pathname);
-        return currentPage ? currentPage[0] : null;
-    }
+  const [categories, setCategories] = useState<CategoryResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-    const currentPage = getCurrentPageName();
+  const getCurrentPageName = () => {
+    const entry = Object.entries(PagePathNames).find(
+      ([, path]) => path === pathname
+    );
+    return entry ? entry[0] : null;
+  };
 
+  const currentPage = getCurrentPageName();
 
-    useEffect(() => {
-        fetchCategories();
-    }, []);
-
+  /** Fetch categories once */
+  useEffect(() => {
     const fetchCategories = async () => {
+      try {
         setLoading(true);
-        setError(null);
-
-        try {
-            const response = await axios.get('/api/category-hierarchy');
-
-            if (response.data.status) {
-                setCategories(response.data);
-            } else {
-                setError(response.data.message || 'Failed to fetch categories');
-            }
-        } catch (err) {
-            console.error('Error fetching categories:', err);
-            if (axios.isAxiosError(err)) {
-                setError(err.response?.data?.message || err.message);
-            } else if (err instanceof Error) {
-                setError(err.message);
-            } else {
-                setError('Failed to fetch categories');
-            }
-        } finally {
-            setLoading(false);
+        const response = await axios.get("/api/category-hierarchy");
+        if (response.data.status) {
+          setCategories(response.data);
+        } else {
+          setError(response.data.message || "Failed to fetch categories");
         }
+      } catch (err: any) {
+        setError(err.message || "Failed to fetch categories");
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchCategories();
+  }, []);
 
-    const findCategory = useCallback((cats: Category[]): Category | null => {
-        for (const cat of cats) {
-            if (cat.category_name === currentPage) return cat;
-        }
-        return null;
-    }, [currentPage]);
+  /** Find matching category from data */
+  const findCategory = useCallback(
+    (cats: Category[]): Category | null => {
+      return cats.find((c) => c.category_name === currentPage) || null;
+    },
+    [currentPage]
+  );
 
-    const getSubCategories = () => {
-        if (!categories?.data) return [];
-        const activeCat = findCategory(categories.data);
-        if (!activeCat) return [];
+  /** Derive subcategories */
+  const subCats = categories?.data
+    ? findCategory(categories.data)?.sub_categories : [];
 
-        return activeCat.sub_categories || activeCat.sub_sub_categories || [];
-    };
-
-    const subCats = getSubCategories();
-
-    useEffect(() => {
-        if (!categories?.data) return;
-      
-        const activeCat = findCategory(categories.data);
-        if (activeCat) {
-          // Always update selectedSubCategory when page (pathname) changes
-          setSelectedSubCategory(activeCat.category_id);
-        }
-      }, [categories, findCategory, pathname, setSelectedSubCategory]);
-      
-
+  /** Set default subcategory once when page changes */
+  useEffect(() => {
+    if (currentPage && PageToCategoryMap[currentPage]) {
+      setSelectedSubCategory(PageToCategoryMap[currentPage]);
+      console.log(
+        `✅ Set subcategory for ${currentPage}: ${PageToCategoryMap[currentPage]}`
+      );
+    }
+  }, [currentPage, setSelectedSubCategory]);
+          
     return (
         <>
             <header className="sticky top-0 z-20 max-w-full mx-auto bg-white lg:hidden mobileHeader shadow-[0px_1px_3px_0px_rgba(66,66,66,0.15),_0px_0px_0px_1px_rgba(66,66,66,0.05)]">
@@ -354,7 +344,7 @@ const Header = () => {
                                             </li>
                                         ))
                                     } */}
-                                    {subCats.map((item) => {
+                                    {subCats?.map((item) => {
                                         const isActive = item.category_id === selectedSubCategory;
                                         return (
                                             // <li
