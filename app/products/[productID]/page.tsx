@@ -211,10 +211,6 @@ export default async function ProductPage({
       inBags: 50,
     })) || [];
 
-
-
-  console.log(product, 'qwertyuiop[')
-
   return (
     <>
       <Header />

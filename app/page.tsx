@@ -1292,7 +1292,6 @@ export default function Home() {
                   <div>
                     <a
                       className="border rounded text-xs lg:text-sm py-2.5 px-4 border-[#3C4242] text-[#3C4242] font-medium"
-                      href="collection/women.html"
                     >
                       View All
                     </a>
@@ -1359,7 +1358,7 @@ export default function Home() {
                                             bottom: 0,
                                             color: "transparent",
                                           }}
-                                          src="../static3.azafashions.com/uploads/product_gallery/1759841431182_AKSSK123.jpg"
+                                          src="https://static3.azafashions.com/uploads/product_gallery/1755784089033_1.jpg"
                                         />
                                         <div className="absolute bottom-0 w-full left-0 flex flex-col min-h-16 lg:min-h-36 bg-gradient-to-b from-black/0 to-black/50 justify-end pb-4 lg:pb-6 space-y-1">
                                           <h3 className="lining-nums text-white __className_205bd8 tracking-normal text-sm font-medium text-center lg:text-lg px-2">
@@ -1414,7 +1413,7 @@ export default function Home() {
                                             bottom: 0,
                                             color: "transparent",
                                           }}
-                                          src="../static3.azafashions.com/uploads/product_gallery/1756444599116_product_image.jpg"
+                                          src="https://static3.azafashions.com/uploads/product_gallery/1755337061723_1.jpg"
                                         />
                                         <div className="absolute bottom-0 w-full left-0 flex flex-col min-h-16 lg:min-h-36 bg-gradient-to-b from-black/0 to-black/50 justify-end pb-4 lg:pb-6 space-y-1">
                                           <h3 className="lining-nums text-white __className_205bd8 tracking-normal text-sm font-medium text-center lg:text-lg px-2">
@@ -1524,7 +1523,7 @@ export default function Home() {
                                             bottom: 0,
                                             color: "transparent",
                                           }}
-                                          src="../static3.azafashions.com/uploads/product_gallery/1748356378164_1.jpg"
+                                          src="https://static3.azafashions.com/uploads/product_gallery/1748356286255_1.jpg"
                                         />
                                         <div className="absolute bottom-0 w-full left-0 flex flex-col min-h-16 lg:min-h-36 bg-gradient-to-b from-black/0 to-black/50 justify-end pb-4 lg:pb-6 space-y-1">
                                           <h3 className="lining-nums text-white __className_205bd8 tracking-normal text-sm font-medium text-center lg:text-lg px-2">
@@ -1579,7 +1578,7 @@ export default function Home() {
                                             bottom: 0,
                                             color: "transparent",
                                           }}
-                                          src="../static3.azafashions.com/uploads/product_gallery/1745038168061_product_image.jpg"
+                                          src="https://static3.azafashions.com/uploads/product_gallery/1757078621935_NitikaG0707253865.jpg"
                                         />
                                         <div className="absolute bottom-0 w-full left-0 flex flex-col min-h-16 lg:min-h-36 bg-gradient-to-b from-black/0 to-black/50 justify-end pb-4 lg:pb-6 space-y-1">
                                           <h3 className="lining-nums text-white __className_205bd8 tracking-normal text-sm font-medium text-center lg:text-lg px-2">
