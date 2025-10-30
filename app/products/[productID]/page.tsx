@@ -11,8 +11,9 @@ import ChatUsPage from "@/components/ChatUs";
 
 async function getProductById(id: string): Promise<Product | null> {
   try {
-    const response = await fetch(`http://localhost:3000/api/product-detail?product_id=${id}`, {
-      cache: 'no-store'
+    const baseUrl =process.env.NEXT_PUBLIC_BASE_URL
+    const response = await fetch(`${baseUrl}/api/product-detail?product_id=${id}`, {
+      cache: 'no-store',
     });
 
     if (!response.ok) {
