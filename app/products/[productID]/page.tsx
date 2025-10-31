@@ -5,7 +5,6 @@ import ProductCarousel from '../../../components/ProductCarousel'
 import CuratedCarousel from '../../../components/CuratedCarousel'
 import Footer from "@/components/Footer";
 import { Product } from "@/types/product";
-import ReinitializeChat from "@/components/ReinitializeChat";
 import ChatUsPage from "@/components/ChatUs";
 
 
@@ -36,6 +35,8 @@ async function getProductById(id: string): Promise<Product | null> {
       const discountAttribute = productData.attributes?.find(
         (attr: any) => attr.attribute_id === "ATR003_DYN_discount_percent"
       );
+      const imagesArritbute = productData?.thumbnail_images?.map((item: { image_url: any; }) => item.image_url);
+
 
       // Create the product object with extracted attributes
       const product: Product = {
@@ -43,6 +44,7 @@ async function getProductById(id: string): Promise<Product | null> {
         price: priceAttribute ? parseFloat(priceAttribute.attribute_value) : 0,
         maximum_retail_price: mrpAttribute ? parseFloat(mrpAttribute.attribute_value) : 0,
         discount_percentage: discountAttribute ? parseFloat(discountAttribute.attribute_value) : 0,
+        images:imagesArritbute || []
       };
       return product; // Assuming the product data is in data.data
     }
@@ -69,94 +71,6 @@ export default async function ProductPage({
 
   if (!product) return notFound();
 
-  const similarItems = [
-    {
-      id: '101',
-      name: 'Embroidered Lehenga & Draped Blouse Set',
-      brand: 'Masumi Mewawalla X AZA',
-      price: 63600,
-      originalPrice: 79500,
-      discount: 20,
-      image: 'https://static3.azafashions.com/tr:w-450/uploads/product_gallery/1731503118491_1.jpg',
-      href: '/products/masumi-mewawalla-embroidered-lehenga-and-draped-blouse-set/595265',
-      isAzaExclusive: true,
-      inBags: 50,
-    },
-    {
-      id: '2',
-      name: 'Embroidered Lehenga & Draped Blouse Set',
-      brand: 'Masumi Mewawalla X AZA',
-      price: 63600,
-      originalPrice: 79500,
-      discount: 20,
-      image: 'https://static3.azafashions.com/tr:w-450/uploads/product_gallery/1731503118491_1.jpg',
-      href: '/products/masumi-mewawalla-embroidered-lehenga-and-draped-blouse-set/595265',
-      isAzaExclusive: true,
-      inBags: 50,
-    },
-    {
-      id: '3',
-      name: 'Embroidered Lehenga & Draped Blouse Set',
-      brand: 'Masumi Mewawalla X AZA',
-      price: 63600,
-      originalPrice: 79500,
-      discount: 20,
-      image: 'https://static3.azafashions.com/tr:w-450/uploads/product_gallery/1731503118491_1.jpg',
-      href: '/products/masumi-mewawalla-embroidered-lehenga-and-draped-blouse-set/595265',
-      isAzaExclusive: true,
-      inBags: 50,
-    },
-    {
-      id: '4',
-      name: 'Embroidered Lehenga & Draped Blouse Set',
-      brand: 'Masumi Mewawalla X AZA',
-      price: 63600,
-      originalPrice: 79500,
-      discount: 20,
-      image: 'https://static3.azafashions.com/tr:w-450/uploads/product_gallery/1731503118491_1.jpg',
-      href: '/products/masumi-mewawalla-embroidered-lehenga-and-draped-blouse-set/595265',
-      isAzaExclusive: true,
-      inBags: 50,
-    },
-    {
-      id: '5',
-      name: 'Embroidered Lehenga & Draped Blouse Set',
-      brand: 'Masumi Mewawalla X AZA',
-      price: 63600,
-      originalPrice: 79500,
-      discount: 20,
-      image: 'https://static3.azafashions.com/tr:w-450/uploads/product_gallery/1731503118491_1.jpg',
-      href: '/products/masumi-mewawalla-embroidered-lehenga-and-draped-blouse-set/595265',
-      isAzaExclusive: true,
-      inBags: 50,
-    },
-    {
-      id: '6',
-      name: 'Embroidered Lehenga & Draped Blouse Set',
-      brand: 'Masumi Mewawalla X AZA',
-      price: 63600,
-      originalPrice: 79500,
-      discount: 20,
-      image: 'https://static3.azafashions.com/tr:w-450/uploads/product_gallery/1731503118491_1.jpg',
-      href: '/products/masumi-mewawalla-embroidered-lehenga-and-draped-blouse-set/595265',
-      isAzaExclusive: true,
-      inBags: 50,
-    },
-    // ... more products
-  ];
-
-  const curatedItems = [
-    {
-      id: '1',
-      title: 'Everyday Staples',
-      href: '/aza-curates/spring-summer-2024/3421?sub_category_id=286',
-      images: [
-        'https://static3.azafashions.com/tr:w-317/uploads/product_gallery/1690296204497_1.jpg',
-        'https://static3.azafashions.com/tr:w-317/uploads/product_gallery/1691595663401_1.jpg'
-      ]
-    },
-  ];
-
   const curatedItems1 = product.collections.map((item) => (
     {
       id: item.name,
@@ -168,8 +82,8 @@ export default async function ProductPage({
 
   const suggested_items = product.suggested_items
     ?.filter((item) => item.source_name === "Closest Match")
-    .map((item) => ({
-      id: item.product_id,
+    .map((item,index) => ({
+      id: `${item.product_id}_${index}`,
       name: item.product_name,
       brand: 'Masumi Mewawalla X AZA',
       price: item.price,
@@ -182,9 +96,9 @@ export default async function ProductPage({
     })) || [];
 
   const suggested_itemsCustomers = product.suggested_items
-    ?.filter((item) => item.source_name === "Customers Also Viewed") // ✅ filter by Customers Also Viewed
-    .map((item) => ({
-      id: item.product_id,
+    ?.filter((item) => item.source_name === "Customers Also Viewed")
+    .map((item,index) => ({
+      id: `${item.product_id}_${index}`,
       name: item.product_name,
       brand: 'Masumi Mewawalla X AZA',
       price: item.price,
@@ -199,8 +113,8 @@ export default async function ProductPage({
 
   const bestPairedWith = product.suggested_items
     .filter((item) => item.source_name === "Best Paired With")
-    .map((item) => ({
-      id: item.product_id,
+    .map((item,index) => ({
+      id: `${item.product_id}_${index}`, 
       name: item.product_name,
       brand: "Masumi Mewawalla X AZA",
       price: item.price,
@@ -215,7 +129,7 @@ export default async function ProductPage({
   return (
     <>
       <Header />
-      <ReinitializeChat />
+      {/* <ReinitializeChat /> */}
       <main className="wrapperContainer py-8">
         <div className="flex flex-col flex-wrap justify-between lg:flex-row">
           {/* LEFT: IMAGE GALLERY - Matching the reference structure */}
@@ -224,15 +138,15 @@ export default async function ProductPage({
               {/* Thumbnail Sidebar */}
               <div className="relative flex-[0_0_7%] lg:flex-[0_0_72px] overflow-auto scrollbar-none">
                 <div className="absolute top-0 flex flex-col self-start w-full overflow-auto bottom-4 scroll-smooth scrollbar-none">
-                  {/* {allImages.map((imgUrl, index) => ( */}
+                  {product.images.map((imgUrl, index) => (
                   <div
-                    // key={index}
+                    key={index}
                     className="relative mb-4 overflow-hidden border-2 last:mb-0 rounded-xl border-transparent cursor-pointer hover:border-black"
                   >
                     <div className="pt-[150%] object-cover cursor-pointer bg-gray-100">
                       <Image
-                        alt={product.product_name}
-                        src={product.product_image}
+                        alt={imgUrl}
+                        src={imgUrl}
                         fill
                         unoptimized
                         sizes="64px"
@@ -240,7 +154,7 @@ export default async function ProductPage({
                       />
                     </div>
                   </div>
-                  {/* ))} */}
+                  ))} 
                 </div>
               </div>
 

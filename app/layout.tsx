@@ -7,6 +7,7 @@ import ToqiChatbot from "@/components/ToqiChatbot";
 import Script from "next/script";
 import { CategoryProvider } from "@/context/CategoryContext";
 import CategoryInjector from "@/components/CategoryInjector";
+import ToqiScriptReloader from "@/components/ToqiScriptReloader";
 
 
 
@@ -70,13 +71,12 @@ export default function RootLayout({
       >
         <CategoryProvider>
           {children}
-            <CategoryInjector/>
+          <CategoryInjector />
+          <ToqiChatbot />
+          <ChatbotToggle />
+          <ToqiScriptReloader />
+          <Script src="/toqi-script.js" strategy="afterInteractive" />
         </CategoryProvider>
-        <ToqiChatbot />
-        <ChatbotToggle />
-
-
-        <Script src="/toqi-script.js" strategy="afterInteractive" />
 
       </body>
     </html>

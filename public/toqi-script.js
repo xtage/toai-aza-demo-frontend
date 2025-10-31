@@ -1,14 +1,24 @@
 // Constants
-const API_URL = "https://an8nt5eo8g.execute-api.ap-south-1.amazonaws.com/stage";
-const BASE_AUTH = "https://an8nt5eo8g.execute-api.ap-south-1.amazonaws.com/stage";
-const STORE_ID = "store0000008";
-const AUTH_CREDENTIALS = "lumi.admin@xtagelabs.com:lumi.admin.123";
+// const API_URL = "https://an8nt5eo8g.execute-api.ap-south-1.amazonaws.com/stage";
+// const BASE_AUTH = "https://an8nt5eo8g.execute-api.ap-south-1.amazonaws.com/stage";
+// const STORE_ID = "store0000008";
+// const AUTH_CREDENTIALS = "lumi.admin@xtagelabs.com:lumi.admin.123";
 
+if (!window.TOQI_GLOBALS_INITIALIZED) {
+    window.API_URL = "https://an8nt5eo8g.execute-api.ap-south-1.amazonaws.com/stage";
+    window.BASE_AUTH = "https://an8nt5eo8g.execute-api.ap-south-1.amazonaws.com/stage";
+    window.STORE_ID = "store0000008";
+    window.AUTH_CREDENTIALS = "lumi.admin@xtagelabs.com:lumi.admin.123";
+    window.TOQI_GLOBALS_INITIALIZED = true;
+  }
+  
 // Global variables
 let PRODUCT_ID =   window.location.pathname?.split("/products/")[1]?.split("/")[0] || "134108";
 console.log(PRODUCT_ID , window.pathname)
 let session_id = "";
 let chat_id = "";
+
+
 
 // Utility Functions
 function generateRandomId(length = 16) {
@@ -51,6 +61,7 @@ function getPageContext() {
         return { type: "category", id: categoryId };
     } else if (pathname.includes("/product")) {
         const productId = pathname.split("/products/")[1]?.split("/")[0] || "";
+        PRODUCT_ID=productId;
         return { type: "product", id: productId};
     }
 
@@ -61,6 +72,7 @@ function getPageContext() {
 // API Functions
 async function handleSessioninit() {
     try {
+        const pageContext = getPageContext();
         const response = await fetch(
             `${API_URL}/api/v1/session/?session_id=${session_id}&store_id=${STORE_ID}&product_id=${PRODUCT_ID}`,
             {
@@ -70,6 +82,15 @@ async function handleSessioninit() {
                     static_session_data: {
                         user_profile: {
                             is_logged_in: false
+                        }
+                    },
+                    static_chat_data: {
+                        chat: {
+                            page: {
+                                type: pageContext.type,
+                                id: pageContext.id
+                            },
+                            channel: "website"
                         }
                     },
                     dynamic_session_data: {},
@@ -122,7 +143,7 @@ async function handleSessionChat() {
 async function fetchPredefinedQuestions() {
     try {
         const response = await fetch(
-            `${API_URL}/api/v1/questions/?product_id=${PRODUCT_ID}&session_id=${session_id}&store_id=${STORE_ID}`,
+            `${API_URL}/api/v1/questions/?product_id=${PRODUCT_ID}&session_id=${session_id}&store_id=${STORE_ID}&chat_id=${chat_id}`,
             {
                 method: "GET",
                 headers: getAuthHeaders(),
@@ -413,20 +434,20 @@ function createProductPreview(url, description, image, hyperlinkId, title, callb
     const previewContent = document.createElement("div");
     previewContent.style.display = "flex";
     previewContent.style.alignItems = "center";
-    previewContent.style.gap = "10px";
+    previewContent.style.gap = "5px";
 
     // Image
     const previewImage = document.createElement("img");
     previewImage.src = image;
     previewImage.alt = title;
     previewImage.style.width = "80px";
-    previewImage.style.height = "80px";
+    previewImage.style.height = "100%";
     previewImage.style.objectFit = "cover";
     previewImage.style.borderRadius = "4px";
     previewContent.appendChild(previewImage);
 
     const previewInfo = document.createElement("div");
-    previewInfo.style.flex = "1";
+    // previewInfo.style.flex = "1";
 
     // Title
     const previewTitle = document.createElement("a");
@@ -438,6 +459,7 @@ function createProductPreview(url, description, image, hyperlinkId, title, callb
     previewTitle.style.marginBottom = "4px";
     previewTitle.style.textDecoration = "none";
     previewTitle.style.fontWeight = "bold";
+    previewTitle.style.fontSize="12px";
 
     previewTitle.addEventListener("click", () => handleHyperLinkClick(hyperlinkId));
     previewInfo.appendChild(previewTitle);
