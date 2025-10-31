@@ -35,7 +35,7 @@ export default function ToqiChatbot() {
 
                     <div
                         className="flex items-center px-4 overflow-hidden flex-col lg:flex-row align-center"
-                        style={{ paddingRight: "1rem !important", paddingBlock: "6px" }}
+                        style={{ paddingRight: "1rem !important", paddingBlock: "10px" }}
                     >
                         <span id="powered-span">
                             Powered by:
