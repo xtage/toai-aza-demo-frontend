@@ -37,8 +37,6 @@ async function getProductById(id: string): Promise<Product | null> {
       );
       const imagesArritbute = productData?.thumbnail_images?.map((item: { image_url: any; }) => item.image_url);
 
-
-      // Create the product object with extracted attributes
       const product: Product = {
         ...productData,
         price: priceAttribute ? parseFloat(priceAttribute.attribute_value) : 0,
@@ -46,7 +44,7 @@ async function getProductById(id: string): Promise<Product | null> {
         discount_percentage: discountAttribute ? parseFloat(discountAttribute.attribute_value) : 0,
         images:imagesArritbute || []
       };
-      return product; // Assuming the product data is in data.data
+      return product;
     }
     return null;
   } catch (error) {
@@ -126,6 +124,7 @@ export default async function ProductPage({
       inBags: 50,
     })) || [];
 
+    // console.log(product , 'products')
   return (
     <>
       <Header />

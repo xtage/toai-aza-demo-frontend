@@ -238,6 +238,7 @@ function removeOldSuggestions() {
 
 function renderPredefinedQuestions(questions) {
     const predefinedQuestionsContainer = document.getElementById("predefined-questions");
+    predefinedQuestionsContainer.style.display = "flex";
     if (!predefinedQuestionsContainer) return;
 
     predefinedQuestionsContainer.innerHTML = "";
@@ -336,7 +337,8 @@ function processAPIResponse(data) {
             answerText.appendChild(link);
         });
     } else {
-        answerText.innerHTML = data.answers.answer.text;
+        // answerText.innerHTML = data.answers.answer.text;
+        answerText.innerHTML = data.answers.answer.text.replace(/\n/g, "<br>");
     }
 
     answerElement.appendChild(answerText);
@@ -388,7 +390,11 @@ function processAPIResponse(data) {
     scrollToBottom();
 
     // Update predefined questions if needed
-    if (data.questions) {
+    if (!data.questions || data.questions.length === 0) {
+        const predefinedQuestionsContainer = document.getElementById("predefined-questions");
+        predefinedQuestionsContainer.style.display = "none";
+    }
+    if (data.questions && data.questions.length > 0) {
         renderPredefinedQuestions(data.questions);
     }
 }
