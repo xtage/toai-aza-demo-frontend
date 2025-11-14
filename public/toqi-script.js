@@ -1,24 +1,20 @@
-// Constants
-// const API_URL = "https://an8nt5eo8g.execute-api.ap-south-1.amazonaws.com/stage";
-// const BASE_AUTH = "https://an8nt5eo8g.execute-api.ap-south-1.amazonaws.com/stage";
-// const STORE_ID = "store0000008";
-// const AUTH_CREDENTIALS = "lumi.admin@xtagelabs.com:lumi.admin.123";
-
+// Constants and Global Variables
 if (!window.TOQI_GLOBALS_INITIALIZED) {
     window.API_URL = "https://an8nt5eo8g.execute-api.ap-south-1.amazonaws.com/stage";
     window.BASE_AUTH = "https://an8nt5eo8g.execute-api.ap-south-1.amazonaws.com/stage";
     window.STORE_ID = "store0000008";
     window.AUTH_CREDENTIALS = "lumi.admin@xtagelabs.com:lumi.admin.123";
     window.TOQI_GLOBALS_INITIALIZED = true;
-  }
-  
-// Global variables
-let PRODUCT_ID =   window.location.pathname?.split("/products/")[1]?.split("/")[0] || "134108";
-console.log(PRODUCT_ID , window.pathname)
+}
+
+// Session configuration
+let SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 15 minutes in milliseconds (configurable)
+let PRODUCT_ID = window.location.pathname?.split("/products/")[1]?.split("/")[0] || "134108";
 let session_id = "";
 let chat_id = "";
-
-
+let lastActivityTimestamp = Date.now();
+let sessionTimeout = null;
+let hasChatbotActivity = false;
 
 // Utility Functions
 function generateRandomId(length = 16) {
@@ -29,13 +25,126 @@ function generateRandomId(length = 16) {
     ).join("");
 }
 
+function updateActivityTimestamp() {
+    lastActivityTimestamp = Date.now();
+    localStorage.setItem("lastActivityTimestamp", lastActivityTimestamp.toString());
+    localStorage.setItem("hasChatbotActivity", "true");
+    hasChatbotActivity = true;
+    resetSessionTimeout();
+}
+
+function resetSessionTimeout() {
+    // Clear existing timeout
+    if (sessionTimeout) {
+        clearTimeout(sessionTimeout);
+    }
+    
+    // Only set timeout if there has been chatbot activity
+    if (hasChatbotActivity) {
+        sessionTimeout = setTimeout(() => {
+            expireSession();
+        }, SESSION_TIMEOUT_MS);
+    }
+}
+
+function expireSession() {
+    console.log("Session expired due to inactivity");
+    
+    // Clear current session data
+    session_id = "";
+    chat_id = "";
+    hasChatbotActivity = false;
+    
+    // Remove from localStorage
+    localStorage.removeItem("randomId");
+    localStorage.removeItem("lastActivityTimestamp");
+    localStorage.removeItem("hasChatbotActivity");
+    
+    // Clear any existing timeout
+    if (sessionTimeout) {
+        clearTimeout(sessionTimeout);
+        sessionTimeout = null;
+    }
+    
+    // Reinitialize with new session
+    initializeNewSession();
+}
+
+function initializeNewSession() {
+    // Generate new session ID
+    session_id = generateRandomId();
+    localStorage.setItem("randomId", session_id);
+    
+    // Reset activity tracking
+    hasChatbotActivity = false;
+    localStorage.removeItem("hasChatbotActivity");
+    localStorage.removeItem("lastActivityTimestamp");
+    
+    // Initialize new session with API
+    handleSessioninit().then(() => {
+        handleSessionChat().then(() => {
+            fetchPredefinedQuestions();
+        });
+    }).catch(error => {
+        console.error("Error initializing new session:", error);
+    });
+}
+
 function getOrCreateSessionId() {
+    const storedTimestamp = localStorage.getItem("lastActivityTimestamp");
+    const storedHasActivity = localStorage.getItem("hasChatbotActivity") === "true";
+    const currentTime = Date.now();
+    
+    hasChatbotActivity = storedHasActivity;
+    
+    // Check if session has expired (only if there was chatbot activity)
+    if (storedHasActivity && storedTimestamp && (currentTime - parseInt(storedTimestamp)) > SESSION_TIMEOUT_MS) {
+        console.log("Session expired, creating new one");
+        expireSession();
+        return session_id;
+    }
+    
+    // Get or create session ID
     let sessionId = localStorage.getItem("randomId");
     if (!sessionId) {
         sessionId = generateRandomId();
         localStorage.setItem("randomId", sessionId);
     }
+    
     return sessionId;
+}
+
+function setupActivityTracking() {  
+    // Only track chatbot-specific interactions
+    const chatContainer = document.getElementById('chat-response');
+    if (chatContainer) {
+        chatContainer.addEventListener('scroll', updateActivityTimestamp, { passive: true });
+    }
+    
+    // Track input events in chatbot
+    const userInput = document.getElementById('user-input');
+    if (userInput) {
+        userInput.addEventListener('input', updateActivityTimestamp);
+        userInput.addEventListener('focus', updateActivityTimestamp);
+    }
+    
+    // Track predefined question clicks
+    const predefinedQuestions = document.getElementById('predefined-questions');
+    if (predefinedQuestions) {
+        predefinedQuestions.addEventListener('click', updateActivityTimestamp);
+    }
+    
+    // Track send button clicks
+    const sendButton = document.getElementById('send-button');
+    if (sendButton) {
+        sendButton.addEventListener('click', updateActivityTimestamp);
+    }
+    
+    // Track any clicks within the chat interface
+    const chatInterface = document.querySelector('.chat-interface'); // Adjust selector as needed
+    if (chatInterface) {
+        chatInterface.addEventListener('click', updateActivityTimestamp);
+    }
 }
 
 function getAuthHeaders() {
@@ -61,13 +170,12 @@ function getPageContext() {
         return { type: "category", id: categoryId };
     } else if (pathname.includes("/product")) {
         const productId = pathname.split("/products/")[1]?.split("/")[0] || "";
-        PRODUCT_ID=productId;
-        return { type: "product", id: productId};
+        PRODUCT_ID = productId;
+        return { type: "product", id: productId };
     }
 
     return { type: "unknown", id: "" };
 }
-
 
 // API Functions
 async function handleSessioninit() {
@@ -161,6 +269,8 @@ async function fetchPredefinedQuestions() {
 }
 
 async function sendQuestionToAPI(questionId, questionText) {
+    updateActivityTimestamp(); // Update timestamp on user action
+    
     removeOldSuggestions();
     const payload = {
         questions: [
@@ -337,7 +447,6 @@ function processAPIResponse(data) {
             answerText.appendChild(link);
         });
     } else {
-        // answerText.innerHTML = data.answers.answer.text;
         answerText.innerHTML = data.answers.answer.text.replace(/\n/g, "<br>");
     }
 
@@ -453,7 +562,6 @@ function createProductPreview(url, description, image, hyperlinkId, title, callb
     previewContent.appendChild(previewImage);
 
     const previewInfo = document.createElement("div");
-    // previewInfo.style.flex = "1";
 
     // Title
     const previewTitle = document.createElement("a");
@@ -521,6 +629,7 @@ function setupReviewButtons(reviewIcon) {
     const thumbDown = reviewIcon.querySelector(".ri-thumb-down-line");
 
     thumbUp.addEventListener("click", function () {
+        updateActivityTimestamp(); // Update timestamp on review interaction
         if (this.classList.contains("ri-thumb-up-line")) {
             this.classList.replace("ri-thumb-up-line", "ri-thumb-up-fill");
             thumbDown.classList.replace("ri-thumb-down-fill", "ri-thumb-down-line");
@@ -530,6 +639,7 @@ function setupReviewButtons(reviewIcon) {
     });
 
     thumbDown.addEventListener("click", function () {
+        updateActivityTimestamp(); // Update timestamp on review interaction
         if (this.classList.contains("ri-thumb-down-line")) {
             this.classList.replace("ri-thumb-down-line", "ri-thumb-down-fill");
             thumbUp.classList.replace("ri-thumb-up-fill", "ri-thumb-up-line");
@@ -575,6 +685,8 @@ function hideLoader() {
 
 // Event Handlers
 function handlePredefinedQuestionClick(event) {
+    updateActivityTimestamp(); // Update timestamp on user action
+    
     const questionId = event.currentTarget.dataset.questionId;
     const questionText = event.currentTarget.dataset.questionText;
     displayQuestion(questionText);
@@ -582,6 +694,8 @@ function handlePredefinedQuestionClick(event) {
 }
 
 function handleUserQuestion() {
+    updateActivityTimestamp(); // Update timestamp on user action
+    
     const userInput = document.getElementById("user-input");
     if (!userInput) return;
 
@@ -594,6 +708,8 @@ function handleUserQuestion() {
 }
 
 function handleHyperLinkClick(hyperlinkId) {
+    updateActivityTimestamp(); // Update timestamp on user action
+    
     const timestamp = new Date().toISOString();
     const payload = {
         table_name: "hyperlink_clicks",
@@ -607,6 +723,8 @@ function handleHyperLinkClick(hyperlinkId) {
 
 // Button Analytics Functions
 function handleButtonClick(buttonType, callback) {
+    updateActivityTimestamp(); // Update timestamp on user action
+    
     const timestamp = new Date().toISOString();
 
     const dataPayload = {
@@ -645,7 +763,12 @@ function handleButtonClick(buttonType, callback) {
 
 // Initialization
 function initializeChat() {
+    // Setup activity tracking first
+    setupActivityTracking();
+    
+    // Get or create session with expiration check
     session_id = getOrCreateSessionId();
+    
     const waitForCategory = new Promise((resolve) => {
         const checkInterval = setInterval(() => {
             if (window.CATEGORY_ID || window.location.pathname.includes("/product") || window.location.pathname === "/") {
@@ -663,12 +786,11 @@ function initializeChat() {
 
     waitForCategory.then(() => {
         handleSessioninit().then(() => {
-            handleSessionChat().then(()=>{
-              fetchPredefinedQuestions();
+            handleSessionChat().then(() => {
+                fetchPredefinedQuestions();
             });
         });
-    });    
-    // fetchPredefinedQuestions();
+    });
 
     // Set up event listeners
     const sendButton = document.getElementById("send-button");
@@ -686,6 +808,9 @@ function initializeChat() {
 
     // Set up button analytics
     setupButtonAnalytics();
+    
+    // Initialize session timeout (will only activate if there's chatbot activity)
+    resetSessionTimeout();
 }
 
 function setupButtonAnalytics() {
@@ -728,14 +853,29 @@ function setupButtonAnalytics() {
     }, 300);
 }
 
-// Export functions for global use
+// Export functions for global use with session management
 window.ChatAssistant = {
     initializeChat,
     setProductId: (productId) => { PRODUCT_ID = productId; },
     handleUserQuestion,
     handlePredefinedQuestionClick,
-    handleButtonClick
+    handleButtonClick,
+    updateActivityTimestamp, // Expose for external use
+    expireSession, // Expose for manual session expiration
+    setSessionTimeout: (minutes) => { 
+        SESSION_TIMEOUT_MS = minutes * 60 * 1000; 
+        resetSessionTimeout();
+    },
+    getSessionInfo: () => ({
+        session_id,
+        chat_id,
+        lastActivity: new Date(lastActivityTimestamp),
+        hasChatbotActivity,
+        timeUntilExpiry: hasChatbotActivity ? SESSION_TIMEOUT_MS - (Date.now() - lastActivityTimestamp) : null
+    })
 };
+
+// Auto-initialize if not already initialized
 if (window.ChatAssistant && typeof window.ChatAssistant.initializeChat === "function") {
     window.ChatAssistant.initializeChat();
 }
